@@ -1,11 +1,11 @@
-## Azul
-# Introduction
+# Azul
+## Introduction
 Azul is a Python implementation of the popular board game Azul. This project was developed as part of a student project, in collaboration with one of my classmates. The game utilizes a custom library based on tkinter, created by our professors.
 
-# Rules of Azul
+## Rules of Azul
 Azul is a strategic tile-placement game where players compete to decorate the walls of the Royal Palace of Evora. The game is played with a set of colorful tiles, each representing a different pattern. The objective is to earn the most points by strategically placing tiles on your personal player board.
 
-# How to Play
+## How to Play
 To play Azul Project, follow these steps:
 
 * Launch the game by executing the "Fonctions_Actualisation" file in a terminal using the command: python Fonctions_Actualisation.py.
@@ -19,13 +19,13 @@ To play Azul Project, follow these steps:
 * Keep playing rounds until one player completes a full row of any color on their board. This triggers the final round.
 * At the end of the game, players score points based on completed rows, columns, and sets of colors on their board. The player with the highest score wins!
 
-# Playing Options
+## Playing Options
 Azul offers the following playing options:
 
 * Number of Players: You can play with 2, 3, or 4 players.
 * Player vs. AI: You can choose to play against 3 AI opponents.
 
-# Creating Custom Game Boards
+## Creating Custom Game Boards
 To create your own custom game board, you need to adhere to the following rules:
 
 * Only basic colors can be used: Bc for white, R for red, Bl for blue, V for green, and J for yellow.
@@ -34,7 +34,7 @@ To create your own custom game board, you need to adhere to the following rules:
 * Save the game board in a text file with the .txt extension.
 * To use your custom game board, enter the file name (including the .txt extension) in the terminal at the beginning of the game.
 
-# AI Gameplay
+## AI Gameplay
 The AI in Azul Project follows a specific sequence of steps during its turn:
 
 * Step 1: The AI selects the line that requires the most tiles to be filled (5 -> 4 -> 3, and so on).

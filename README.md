@@ -16,7 +16,7 @@ To play Azul Project, follow these steps:
 * Each round, you must take all the tiles of the same color from a factory or the center and place them in a corresponding pattern line on your board.
 * Be careful, once you choose a color from a factory or the center, you cannot place any additional tiles of that color in the same pattern line until the next round.
 * Any remaining tiles not chosen are moved to the floor line, which will result in negative points at the end of the round.
-* Keep playing rounds until one player completes a full row of any color on their board. This triggers the final round.
+* Keep playing, the game ends when one player has completed an entire row.
 * At the end of the game, players score points based on completed rows, columns, and sets of colors on their board. The player with the highest score wins!
 
 ## Playing Options

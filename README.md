@@ -1,41 +1,48 @@
-# Azul-Project
-Dans le contexte d'un projet étudiant, moi et un de mes camarades avons programmé en python une version du jeu de société Azul.
+## Azul
+# Introduction
+Azul is a Python implementation of the popular board game Azul. This project was developed as part of a student project, in collaboration with one of my classmates. The game utilizes a custom library based on tkinter, created by our professors.
 
-# Comment jouer ?
-Lancer le fichier Fonctions_Actualisation et cliquez sur "nouvelle partie". Ensuite, entrez dans votre terminal le nom d'un des fichier txt qui va représenter le mur sur lequel vous jouerez (exemple : MatriceC.txt ou MatriceOndule.txt). Vous pouvez quitter la partie à tout moment, la partie sera sauvegarder automatiquement.
+# Rules of Azul
+Azul is a strategic tile-placement game where players compete to decorate the walls of the Royal Palace of Evora. The game is played with a set of colorful tiles, each representing a different pattern. The objective is to earn the most points by strategically placing tiles on your personal player board.
 
-#Comment utiliser mes propres murs ?
-Pour créer votre propre mur, il faut respecter les règles suivantes :
-- Seules les couleurs de bases peuvent être utilisées (Bc pour blanc, R pour rouge, Bl pour bleu, V pour vert et enfin J pour jaune)
-- Chaque couleur ne doit apparaître qu'une fois maximum par ligne.
-- De plus pour déclarer votre mur, vous devez écrire | au début de chaque ligne du mur, et _ après chaque couleur, comme ci dessous.
-|Bl_J_R_V_Bc_|Bc_Bl_J_R_V_|V_Bc_Bl_J_R_|R_V_Bc_Bl_J_|J_R_V_Bc_Bl_
+# How to Play
+To play Azul Project, follow these steps:
 
-- Le mur doit être écrit dans un fichier txt
-- Pour utiliser ce mur, il suffit de rentrer le nom du fichier (ne pas oublier le .txt à la fin) dans le terminal au début de la partie.
+* Launch the game by executing the "Fonctions_Actualisation" file in a terminal using the command: python Fonctions_Actualisation.py.
+* Click on "Nouvelle Partie" (New Game) to start a new game session.
+* Return to the terminal and enter the name of the text file representing the desired game board. For example, to use the default game board, enter "MatriceC.txt".
+* During each round, tiles will be randomly placed in the factories and the center of the table.
+* On your turn, select tiles from a factory or the center and place them on your personal player board.
+* Each round, you must take all the tiles of the same color from a factory or the center and place them in a corresponding pattern line on your board.
+* Be careful, once you choose a color from a factory or the center, you cannot place any additional tiles of that color in the same pattern line until the next round.
+* Any remaining tiles not chosen are moved to the floor line, which will result in negative points at the end of the round.
+* Keep playing rounds until one player completes a full row of any color on their board. This triggers the final round.
+* At the end of the game, players score points based on completed rows, columns, and sets of colors on their board. The player with the highest score wins!
 
-#Comment l'IA fonctionne t-elle ?
+# Playing Options
+Azul offers the following playing options:
 
-Un tour d'IA se divise en plusieurs étapes:
-	- Étape 1: 
-		L'IA choisit la ligne nécssitant le plus de tuiles pour être remplie (5->4->3 ...)		
-	- Étape 2:
-		L'IA détermine les couleurs qui peuvent servir à remplir la ligne, si la ligne d'escalier possède déja une couleur de 
-		tuile, alors l'IA cherchera cette même couleur. Sinon elle déterminera une liste de couleurs qui ne sont pas encore remplie 
-		dans cette ligne du mur.
-	- Étape 3:
-		L'IA détermine le nombre de cases qu'elle doit chercher, en fonction du nombre de cases vides dans la ligne d'escalier.
-	- Étape 4:
-		L'IA parcourt ensuite les fabriques et le centre jusqu'à trouver un endroit contenant le bon nombre de cases de la bonne couleur.
-	- Étape 5:
-		Si l'IA à trouver à un endroit les tuiles dont elle a besoin, elle les joue. Sinon elle passe à la ligne d'escalier suivante, et recommence à l'étape 2.
-	- Étape 6: 
-		Dans le cas où l'IA n'a trouver aucune ligne pouvant être entièrement remplie, sans mettre de tuile dans le plancher, elle retourne à l'étape 1, en acceptant une marge d'erreur.
-Les marges d'erreurs sont examinées dans l'ordre suivant : 
--1 -> -2 -> 1 -> 2 -> -3 -> -4 -> 3 -> 4
+* Number of Players: You can play with 2, 3, or 4 players.
+* Player vs. AI: You can choose to play against 3 AI opponents.
 
-Un nombre négatif signifie qu'on accepte qu'il y ai ce nombre de cases vides dans l'escalier (par exemple la ligne 5, avec la marge -2, ne sera remplie que par 3 tuiles)
-Un nombre positif signifie qu'on accepte que ce nombre de cases finisse dans le plancher (par exemple la ligne 3, avec la marge 1, sera entièrement remplie, mais une tuile ira dans le plancher)
-	- Étape 7:
-		Dans le cas où l'IA ne peut remplir de lignes, malgré les différentes marges d'erreurs possibles, elle cherchera dans les fabriques et dans le centre, comment placer le moins de 
-		tuiles possibles dans le plancher.
+# Creating Custom Game Boards
+To create your own custom game board, you need to adhere to the following rules:
+
+* Only basic colors can be used: Bc for white, R for red, Bl for blue, V for green, and J for yellow.
+* Each color can appear only once per row.
+* To declare your game board, use the "|" character at the beginning of each row, and "_" after each color. Here's an example: |Bl_J_R_V_Bc_|Bc_Bl_J_R_V_|V_Bc_Bl_J_R_|R_V_Bc_Bl_J_|J_R_V_Bc_Bl_
+* Save the game board in a text file with the .txt extension.
+* To use your custom game board, enter the file name (including the .txt extension) in the terminal at the beginning of the game.
+
+# AI Gameplay
+The AI in Azul Project follows a specific sequence of steps during its turn:
+
+* Step 1: The AI selects the line that requires the most tiles to be filled (5 -> 4 -> 3, and so on).
+* Step 2: The AI determines the colors that can be used to fill the chosen line. If the stair line already contains a specific tile color, the AI prioritizes * that color. Otherwise, it creates a list of colors that are not yet filled in that line.
+* Step 3: The AI determines the number of tiles it needs to search for, based on the number of empty spaces in the stair line.
+* Step 4: The AI scans the factories and the center until it finds a location with the required number of tiles of the correct color.
+* Step 5: If the AI finds a suitable location, it plays the tiles. Otherwise, it moves to the next stair line and restarts from Step 2.
+* Step 6: If the AI cannot find any line that can be completely filled without placing tiles in the floor, it returns to Step 1, allowing for a margin of * error. The margins of error are examined in the following order: -1 -> -2 -> 1 -> 2 -> -3 -> -4 -> 3 -> 4. A negative number indicates that the AI accepts that number of empty spaces in the stair line. A positive number indicates that the AI accepts that number of tiles ending up in the floor.
+* Step 7: If the AI cannot fill any lines, despite the possible margins of error, it searches for the minimum number of tiles that can be placed in the floor by scanning the factories and the center.
+
+Enjoy playing Azul Project and have fun decorating the Royal Palace of Evora!

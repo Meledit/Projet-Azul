@@ -559,7 +559,8 @@ def donne_evenement():
     if __canevas is None:
         raise FenetreNonCree(
             "La fenêtre n'a pas été crée avec la fonction \"cree_fenetre\".")
-    if len(__canevas.eventQueue) == 0:
+    # if len(__canevas.eventQueue) == 0:
+    if not __canevas.eventQueue: 
         return "RAS", ""
     else:
         return __canevas.eventQueue.pop()

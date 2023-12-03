@@ -131,46 +131,34 @@ def EcritureFichierSauvegarde(Save,NbJoueur,ListeTypeJoueur,sac,matF,matM,matP,m
         Fichier.write(str(num_joueur) + '\n')
         Fichier.write(str(test) + '\n')
 
-def TransfoMatExemple(mat):
-    Mat=[]
+def TransfoMat(mat):
+    MatJoueur=[]
+    MatExemple=[]
     for i in range(len(mat)):
-        Mat.append([])
+        MatJoueur.append([])
+        MatExemple.append([])
         for j in range(len(mat[i])):
             if mat[i][j] == 'R':
-                Mat[-1].append(R)
+                MatJoueur[-1].append(RP)
+                MatExemple[-1].append(R)
             elif mat[i][j] =='Bc':
-                Mat[-1].append(Bc)
+                MatJoueur[-1].append(BcP)
+                MatExemple[-1].append(Bc)
             elif mat[i][j] =='V':
-                Mat[-1].append(V)
+                MatJoueur[-1].append(VP)
+                MatExemple[-1].append(V)
             elif mat[i][j] =='Bl':
-                Mat[-1].append(Bl)
+                MatJoueur[-1].append(BlP)
+                MatExemple[-1].append(Bl)
             elif mat[i][j] =='J':
-                Mat[-1].append(J)
-    return Mat
-
-def TransfoMatJoueur(mat):
-    Mat=[]
-    for i in range(len(mat)):
-        Mat.append([])
-        for j in range(len(mat[i])):
-            if mat[i][j] == 'R':
-                Mat[-1].append(RP)
-            elif mat[i][j] =='Bc':
-                Mat[-1].append(BcP)
-            elif mat[i][j] =='V':
-                Mat[-1].append(VP)
-            elif mat[i][j] =='Bl':
-                Mat[-1].append(BlP)
-            elif mat[i][j] =='J':
-                Mat[-1].append(JP)
-    return Mat
+                MatJoueur[-1].append(JP)
+                MatExemple[-1].append(J)
+    return MatExemple,MatJoueur
 
 def LectureMatDepart(FichierMat):
     with open(FichierMat, 'r') as Fichier:
         Mat = Fichier.readline()
-        MatExemple = LectureMatPart1(Mat)
-        MatJoueur = LectureMatPart1(Mat)
-        MatExemple = TransfoMatExemple(MatExemple)
-        MatJoueur = TransfoMatJoueur(MatJoueur)
+        MatString = LectureMatPart1(Mat)
+        MatExemple, MatJoueur = TransfoMat(MatString)
 
         return MatExemple, MatJoueur

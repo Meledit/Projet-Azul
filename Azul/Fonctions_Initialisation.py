@@ -14,28 +14,10 @@ def InitialiserSac():
     ''' Initialise le sac qui est une liste contenant les 100 tuiles réparties en 5 couleurs différentes'''
     Sac = []
     Couleur = [Bl, J, R, V, Bc]
-    for i in range(5):
-        for j in range(20):
-            Couleur = repartition_couleur(Couleur)
-            Sac.append(Couleur[i])
+    nb_couleur = len(Couleur)
+    for i in range(100):
+        Sac.append(Couleur[i%nb_couleur])
     return Sac
-
-def repartition_couleur(lst):
-    ''' Décale les couleur de une position vers la droite'''
-    n = len(lst)
-    lst2 = [0] * n
-    for i in range(n):
-        lst2[i] = lst[i - 1]
-    return lst2
-
-def Creer_Un_Mur(Couleur):
-    '''Initialise le mur d'un joueur, comme étant une matrice où chaque liste est la précédente décalée d'un rang'''
-    Mur = []
-    for i in range(len(Couleur)):
-        Mur.append(Couleur)
-        Couleur = repartition_couleur(Couleur)
-    return Mur
-
 
 def copie(T):
     if type(T)==list:

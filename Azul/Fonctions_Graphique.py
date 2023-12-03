@@ -77,16 +77,14 @@ def Background():
 
 def Dessine_une_fabrique(lst, xInit, yInit):
     '''Dessine les quatres tuiles appartenant à une fabrique'''
+    y = yInit-tailleC
     for i in range(len(lst) // 2):
         x = xInit +(i * tailleC)
-        y = yInit-tailleC
         if lst[i] != None:
             rectangle(x, y, x + tailleC, y + tailleC, 'black', lst[i], 2)
-    for i in range(len(lst) // 2):
-        x = xInit +(i * tailleC)
-        y = yInit
         if lst[2 + i] != None:
-            rectangle(x, y, x + tailleC, y + tailleC, 'black', lst[2 + i], 2)
+            rectangle(x, y+tailleC, x + tailleC, y + 2*tailleC, 'black', lst[2 + i], 2)
+            
 
 def Dessine_zone_fabrique():
     '''Dessine la ligne pour limiter la zone des fabriques'''
@@ -124,26 +122,29 @@ def Dessine_boutons():
 
 def Dessine_table(xInit, yInit, matT):
     '''Dessine le centre de table en fonction de la matrice fournie'''
+    longueurTable = matT[0]
     for i in range(len(matT)):
         y = yInit + i * tailleC + i * tailleC//6
-        for j in range(len(matT[0])):
+        for j in range(len(longueurTable)):
             x = xInit + j*tailleC + j * tailleC//6
             if matT[i][j] != None:
                 rectangle(x, y, x + tailleC, y + tailleC, 'white', matT[i][j], 2)
 
 def Dessine_Un_Mur(xInit,yInit,M):
     '''Dessine un mur, en partant du coin supérieur gauche de coordonnées (xInit, yInit) et de la matrice fournie'''
+    longueurMur = len(M[0])
     for i in range(len(M)):
         y = yInit + i*tailleC + i*tailleC/6
-        for j in range(len(M[0])):
+        for j in range(longueurMur):
             x = xInit + j*tailleC + j*tailleC/6
             rectangle(x, y, x+tailleC, y+tailleC, "white", M[i][j], 2)
 
 def Dessine_Un_Escalier(xInit, yInit, M):
     '''Dessine un escalier, en partant du coin supérieur gauche de coordonnées (xInit, yInit) et de la matrice fournie'''
+    longueurEscalier = len(M[0])
     for i in range(len(M)):
         y = yInit + i*tailleC + i*tailleC/6
-        for j in range(len(M[0])):
+        for j in range(longueurEscalier):
             x = xInit + j*tailleC + j*tailleC/6
             if M[i][j] != None:
                 if M[i][j] == 'FlecheR':
@@ -220,9 +221,10 @@ def Cadre(xInit, yInit, clr):
 ######################## Ombres du plateau ########################################################
 def dessine_ombre(xInit, yInit, M):
     '''Dessine l'ombre d'une matrice'''
+    longueurMur=len(M[0])
     for i in range (len(M)):
         y = yInit + i * tailleC + i * tailleC/6
-        for j in range (len(M[0])):
+        for j in range (longueurMur):
             x = xInit + j * tailleC + j * tailleC/6
             if M[i][j] != None:
                 if M[i][j] == 'FlecheR' or M[i][j] == 'FlecheV':
@@ -245,16 +247,14 @@ def SurbrillanceFabrique(MatF, numMatF, tuile):
         return
     yInit = hauteur//15
     xInit = longueur//len(MatF)
+    y = yInit-tailleC
     for i in range(len(MatF[numMatF]) // 2):
         x =(xInit // 4) +(numMatF * xInit) +i*tailleC
-        y = yInit-tailleC
         if MatF[numMatF][i] == tuile:
             rectangle(x, y, x+tailleC, y+tailleC, '#F3FE62', '', 4)
-    for i in range(len(MatF[numMatF]) // 2):
-        x =(xInit // 4) +(numMatF * xInit) +i*tailleC
-        y = yInit
         if MatF[numMatF][2+i] == tuile:
-            rectangle(x, y, x+tailleC, y+tailleC, '#F3FE62', '', 4)
+            rectangle(x, y+tailleC, x+tailleC, y+2*tailleC, '#F3FE62', '', 4)
+
 
 def SurbrillanceCentre(Centre, tuile):
     '''Met les tuiles sélectionnées dans le centre en surbrillance'''
@@ -331,11 +331,12 @@ def Dessine_ecran_fin(score, NbJoueurs, condition):
     texte(x, y, 'Statistiques de jeu :', "white", 'nw', 'Arial', 40)
 
     lst_g = liste_gagnant(score)
+    len_lst_g = len(lst_g)
     prem = str(lst_g[0][0] + 1) + ' avec ' + str(lst_g[0][1]) + ' points.'
     deux = str(lst_g[1][0] + 1) + ' avec ' + str(lst_g[1][1]) + ' points.'
-    if len(lst_g) >= 3:
+    if len_lst_g >= 3:
         trois = str(lst_g[2][0] + 1) + ' avec ' + str(lst_g[2][1]) + ' points.'
-    if len(lst_g) == 4:
+    if len_lst_g == 4:
         quat = str(lst_g[3][0] + 1) + ' avec ' + str(lst_g[3][1]) + ' points.'
 
 
@@ -345,11 +346,11 @@ def Dessine_ecran_fin(score, NbJoueurs, condition):
     texte(x, y * 4, '   Seconde place, joueur numéro ' + deux, CouleurJoueur[lst_g[1][0]])
     sleep(1)
     mise_a_jour()
-    if len(lst_g) >= 3:
+    if len_lst_g >= 3:
         texte(x, y * 5, '   Troisième place, joueur numéro ' + trois, CouleurJoueur[lst_g[2][0]])
         sleep(1)
         mise_a_jour()
-    if len(lst_g) == 4:
+    if len_lst_g == 4:
         texte(x, y * 6, '   Quatrième place, joueur numéro ' + quat, CouleurJoueur[lst_g[3][0]])
         sleep(1)
         mise_a_jour()
@@ -378,18 +379,10 @@ def titre():
 def liste_gagnant(lst):
     ''' renvoie une liste trié dans l'ordre décroissant'''
     lst_g = []
-    lst_verif = []
-    for rep in range(len(lst)):
-        max = -10000
-        pos = 3
-        for i in range(len(lst)):
-            if i not in lst_verif:
-                if lst[i] >= max:
-                    max = lst[i]
-                    pos = i
+    for i in range(len(lst)):
+        lst_g.append((i,lst[i]))
 
-        lst_g.append((pos, max))
-        lst_verif.append(pos)
+    lst_g = sorted(lst_g, key=lambda personne:personne[1], reverse=True)
     return lst_g
 
 def animation_debut():

@@ -35,14 +35,16 @@ def Choix_Nb_Joueur():
 def RemplirFabrique(NbJoueurs, Sac):
     ''' Récupère des tuiles du sac de manière aléatoire pour les mettre dans les fabriques'''
     ZoneFabrique = []
+    nbTuilesDansSac = len(Sac)
     for i in range((NbJoueurs * 2) + 1):
         ZoneFabrique.append([])
-        if len(Sac)<4:
+        if nbTuilesDansSac<4:
             ZoneFabrique[i] = [None,None,None,None]
         else:
             for j in range(4):
                 couleur = randint(0, len(Sac) - 1)
                 ZoneFabrique[i].append(Sac.pop(couleur))
+                nbTuilesDansSac += -1
     return ZoneFabrique
 
 def confirmer():
@@ -298,25 +300,22 @@ def ConfirmerDeplacementDepuisCentre(centre, tuile, nb_tuile, ligne_select, plan
         if tuile == VJeton:
             tuile_a_placer_dans_plancher = 1
             actualiser_plancher(plancher,tuile, tuile_a_placer_dans_plancher)
-            actualiser_centre(centre, tuile)
-            update_ecran(NbJoueur, matM, matP, matE, matT, matF, score, num_joueur)
         else:
             PlaceDispo =(len(ligne_select) - ligne_select.count(None) - ligne_select.count(tuile) - 1)
             if PlaceDispo >= nb_tuile:
                 TuileAPlaceDansEscalier =  nb_tuile
             else:
                 TuileAPlaceDansEscalier = PlaceDispo
+
             actualiser_ligne_escalier(ligne_select, tuile, TuileAPlaceDansEscalier)
-            actualiser_centre(centre, tuile)
 
             if assez_de_place(nb_tuile, ligne_select,tuile) == False:
                 tuile_a_placer_dans_plancher=nb_tuile-TuileAPlaceDansEscalier
                 actualiser_plancher(plancher,tuile, tuile_a_placer_dans_plancher)
-            for i in range(len(centre)):
-                if VJeton in centre[i]:                             #Code Hexadécimal du jeton -1
-                    JetonPremierJoueurVersPlancher(centre, plancher)
-                    actualiser_centre(centre, tuile)
-
+            if centre[0][0] == VJeton:      #Code Hexadécimal du jeton -1
+                JetonPremierJoueurVersPlancher(centre, plancher)               
+            
+            actualiser_centre(centre, tuile)
             update_ecran(NbJoueur, matM, matP, matE, matT, matF, score, num_joueur)
         return True
 
@@ -348,11 +347,8 @@ def actualiser_centre(centre, tuile):
 
 def JetonPremierJoueurVersPlancher(centre, plancher):
     ''' Envoie le jeton vert premier joueur, vers le plancher du joueur qui a pioché dans le centre en premier'''
-    for i in range(len(centre)):
-        for j in range(len(centre[i])):
-            if centre[i][j] == VJeton:
-                centre[i][j] = None
-                break
+    if centre[0][0] == VJeton:
+        centre[0][0] = None
 
     for m in range(len(plancher)):
         if plancher[m] == '':
@@ -416,12 +412,13 @@ def Ligne_Escalier_Valide(tuile, ligne_escalier):
 
 def FabriqueVersCentre(MatT, Fabrique, tuile):
     ''' Deplace les tuiles restantes dans la fabrique sélectionnée vers le centre'''
+    PosV = 0
+    PosH = 0
+    longueur_table = len(MatT[0])
     for i in range(len(Fabrique)):
         if Fabrique[i] != tuile:
-            PosV = 0
-            PosH = 0
             while MatT[PosV][PosH] != None:
-                if PosH < len(MatT[0])-1:
+                if PosH < longueur_table-1:
                     PosH +=1
                 else:
                     PosV += 1
@@ -444,14 +441,15 @@ def actualiser_plancher(Lst_plancher,tuile, tuile_a_placer):
 
 def actualiser_ligne_escalier(ligne_escalier, tuile, nb_tuile):
     ''' Met autant de tuiles sélectionnés que possible dans la ligne escalier sélectionné'''
+    longueur_ligne_escalier = len(ligne_escalier)
     for i in range(nb_tuile):
-        for j in range(len(ligne_escalier)):
+        for j in range(longueur_ligne_escalier):
             if ligne_escalier[j]  != None and ligne_escalier[j] != 'FlecheR' and ligne_escalier[j]  != 'FlecheV' and ligne_escalier[j] not in CouleurTuile and ligne_escalier[j] != VJeton :
                 ligne_escalier[j] = tuile
                 break
 
 
-    if len(ligne_escalier) == 6:
+    if longueur_ligne_escalier == 6:
         if '' not in ligne_escalier:
             if ligne_escalier[-1] == 'FlecheV':
                 ligne_escalier[-1] = 'FlecheR'
@@ -485,7 +483,7 @@ def TourIA(matF,matT,matE,matP,num_joueur, GenreJoueur, matM, test):
     ''' Gère le tour d'un joueur IA de manière intelligente'''
     temps = 2.5
     if test == 1:
-        temps = 0
+        temps = 0.5
     LstMarge=[0,-1,-2,1,2,-3,-4,3,4]
     for marge in LstMarge:
         TourFini = RemplirLignes(matE, murCoeff, murExemple, matT, matP, num_joueur, GenreJoueur, marge, temps)
@@ -554,14 +552,16 @@ def CasesAChercher(numLigneEscalier,num_joueur,murExemple,murCoeff,matE):
 
 def RechercheCase(LstCouleur, NbCases):
     '''L'IA cherche où elle peut trouver les cases dont elle a besoin'''
+    tailleMatT = len(matT)
+    nbFabriques = len(matF)
     for couleur in LstCouleur:
         compteur = 0
-        for ligne in range(len(matT)):
+        for ligne in range(tailleMatT):
             compteur+=matT[ligne].count(couleur)
         if compteur == NbCases:
             Endroit = "Centre"
             return compteur,couleur,Endroit, None
-        for numFabrique in range(len(matF)):
+        for numFabrique in range(nbFabriques):
             compteur = matF[numFabrique].count(couleur)
             if compteur == NbCases:
                 Endroit = "Fabriques"

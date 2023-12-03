@@ -217,7 +217,6 @@ def ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nb_tuile, ligne_select, 
     Dessine_boutons()
     if GenreJoueur == 'Bot':
         A_confirme = True
-        sleep(1) 
     else:
         A_confirme = confirmer()
     if A_confirme == False:
@@ -282,8 +281,7 @@ def DeroulementTour(NbJoueur, matF, joueur, escalier, centre, plancher, GenreJou
                     return ConfirmerDeplacementDepuisCentre(centre, tuile, nb_tuile, escalier[ligne_escalier],plancher, GenreJoueur)
 
     elif GenreJoueur == 'Bot':
-        TourIA(matF,matT,matE,matP,num_joueur, GenreJoueur, matM)
-        #TourRobot(matF, centre,escalier,plancher, joueur, GenreJoueur, matM, test)
+        TourIA(matF,matT,matE,matP,num_joueur, GenreJoueur, matM, test)
         return True
 
 def ConfirmerDeplacementDepuisCentre(centre, tuile, nb_tuile, ligne_select, plancher, GenreJoueur):
@@ -291,7 +289,6 @@ def ConfirmerDeplacementDepuisCentre(centre, tuile, nb_tuile, ligne_select, plan
     Dessine_boutons()
     if GenreJoueur == 'Bot':
         A_confirme = True
-        sleep(1)
     else:
         A_confirme = confirmer()
     if A_confirme == False:
@@ -484,91 +481,83 @@ def rotation_finie(matF, centre):
         return False
     return True
 
-def TourRobot(matF, centre, escalier, plancher, num_Joueur, GenreJoueur, matM, test):
-    ''' Gere les choix de tuile sélectionnées et endroit de dépose si c'est au tour d'un robot de jouer,'''
+def TourIA(matF,matT,matE,matP,num_joueur, GenreJoueur, matM, test):
+    ''' Gère le tour d'un joueur IA de manière intelligente'''
     temps = 2.5
     if test == 1:
         temps = 0
-    LstEndroit = ['Fabriques', 'Centre']
-    Endroit = LstEndroit[randint(0,1)]
-
-    if centre[0][0] == None:
-        Endroit = 'Fabriques'
-    if Fabriques_vides(matF) == True:
-        Endroit = 'Centre'
-
-    if Endroit == 'Fabriques' :
-        nb_tuile, Tuile,NumFabrique = ChoixRobotDansFabrique()
-    if Endroit == 'Centre':
-        nb_tuile, Tuile = ChoixRobotDansCentre(centre)
-
-    LigneEscalier=ChoixLigneEscalierRobot(Tuile, escalier, num_Joueur, matM)
-    mise_a_jour()
-    sleep(temps)
-
-    if LigneEscalier == 5:
-        EndroitDeDepot = plancher
-    else:
-        EndroitDeDepot = escalier[LigneEscalier]
-
-    if Endroit == 'Fabriques':
-        ConfirmerDeplacementDepuisFabrique(NumFabrique, Tuile, nb_tuile, EndroitDeDepot, centre, plancher, GenreJoueur)
-    if Endroit == 'Centre':
-        ConfirmerDeplacementDepuisCentre(centre, Tuile, nb_tuile, EndroitDeDepot, plancher, GenreJoueur)
-
-    update_ecran(NbJoueur, matM, matP, matE, matT, matF, score, num_joueur)
-
-def TourIA(matF,matT,matE,matP,num_joueur, GenreJoueur, matM):
     LstMarge=[0,-1,-2,1,2,-3,-4,3,4]
     for marge in LstMarge:
-        TourFini = RemplirLignes(matE, murCoeff, murExemple, matT, matP, num_joueur, GenreJoueur, marge)
+        TourFini = RemplirLignes(matE, murCoeff, murExemple, matT, matP, num_joueur, GenreJoueur, marge, temps)
         if TourFini:
             break
-
+    if not TourFini:
+        RecherchePourPlancher(matT,matP,matF,GenreJoueur)
     update_ecran(NbJoueur, matM, matP, matE, matT, matF, score, num_joueur)
 
-def RemplirLignes(matE,murCoeff, murExemple, matT,matP,num_joueur, GenreJoueur, marge):
+def RemplirLignes(matE,murCoeff, murExemple, matT,matP,num_joueur, GenreJoueur, marge, temps):
+    '''Remplit les lignes qui rapporte le plus de points'''
     for ligne in range(len(matE[num_joueur])-1,-1,-1):
-        print('la ligne actuelle est ', ligne)
         if matE[num_joueur][ligne][-2]=='':
             CouleurAPrendre, CasesARemplir = CasesAChercher(ligne,num_joueur,murExemple,murCoeff, matE)
-            CasesARemplir += marge
-            compteur,couleur,endroit,numFabrique = RechercheCase(CouleurAPrendre, CasesARemplir)
-            print(compteur)
-            if compteur!=None:
-                if endroit == "Centre":
-                    SurbrillanceCentre(matT,couleur)
-                    mise_a_jour()
-                    ConfirmerDeplacementDepuisCentre(matT, couleur, compteur, matE[num_joueur][ligne], matP[num_joueur], GenreJoueur)
-                    return True
-                elif endroit =="Fabriques":
-                    SurbrillanceFabrique(matF, numFabrique, couleur)
-                    mise_a_jour()
-                    ConfirmerDeplacementDepuisFabrique(numFabrique, couleur, compteur, matE[num_joueur][ligne], matT, matP[num_joueur], GenreJoueur)
-                    return True
-        else:
-            print(ligne, 'est pas vide')
+            CasesARemplir = CasesARemplir + marge
+            if CasesARemplir > 0:
+                compteur,couleur,endroit,numFabrique = RechercheCase(CouleurAPrendre, CasesARemplir)
+                if compteur!=None:
+                    if endroit == "Centre":
+                        SurbrillanceCentre(matT,couleur)
+                        SurbrillanceEscalier(matE[num_joueur], ligne, num_joueur)
+                        mise_a_jour()
+                        sleep(temps)
+                        ConfirmerDeplacementDepuisCentre(matT, couleur, compteur, matE[num_joueur][ligne], matP[num_joueur], GenreJoueur)
+                        return True
+                    elif endroit =="Fabriques":
+                        SurbrillanceFabrique(matF, numFabrique, couleur)
+                        SurbrillanceEscalier(matE[num_joueur], ligne, num_joueur)
+                        mise_a_jour()
+                        sleep(temps)
+                        ConfirmerDeplacementDepuisFabrique(numFabrique, couleur, compteur, matE[num_joueur][ligne], matT, matP[num_joueur], GenreJoueur)
+                        return True
     return False
 
+def RecherchePourPlancher(matT,matP,matF,GenreJoueur):
+    '''Cherche le nombre de cases minimum, si l'IA est obligé de jouer dans le plancher'''
+    NbCase = 1
+    while True:
+        compteur,couleur,endroit,numFabrique = RechercheCase(['#FF4040','#4C5EFF','#80C324','#E1E1E1','#FFCC43'],NbCase)
+        if compteur!=None:
+            if endroit == "Centre":
+                SurbrillanceCentre(matT,couleur)
+                SurbrillancePlancher(num_joueur)
+                mise_a_jour()
+                ConfirmerDeplacementDepuisCentre(matT, couleur, compteur, matP[num_joueur], matP[num_joueur], GenreJoueur)
+                return 
+            elif endroit =="Fabriques":
+                SurbrillanceFabrique(matF, numFabrique, couleur)
+                SurbrillancePlancher(num_joueur)
+                mise_a_jour()
+                ConfirmerDeplacementDepuisFabrique(numFabrique, couleur, compteur, matP[num_joueur], matT, matP[num_joueur], GenreJoueur)
+                return 
+        NbCase+=1 
 
 def CasesAChercher(numLigneEscalier,num_joueur,murExemple,murCoeff,matE):
+    '''Définit le nombre de cases à chercher et leurs couleurs'''
     if matE[num_joueur][numLigneEscalier][-2-numLigneEscalier] != '':
-        CouleurAPrendre = matE[num_joueur][numLigneEscalier][-2-numLigneEscalier]
-        print(CouleurAPrendre)
+        CouleurAPrendre = [matE[num_joueur][numLigneEscalier][-2-numLigneEscalier]]
     else:
         CouleurAPrendre=[]
         for case in range(len(murCoeff[num_joueur][numLigneEscalier])):
             if murCoeff[num_joueur][numLigneEscalier][case] == 0:
                 CouleurAPrendre.append(murExemple[numLigneEscalier][case])
     CasesARemplir = matE[num_joueur][numLigneEscalier].count('')
-    print(CasesARemplir,CouleurAPrendre, 'pour la ligne numéro', numLigneEscalier)
     return CouleurAPrendre, CasesARemplir
 
 def RechercheCase(LstCouleur, NbCases):
+    '''L'IA cherche où elle peut trouver les cases dont elle a besoin'''
     for couleur in LstCouleur:
         compteur = 0
         for ligne in range(len(matT)):
-            compteur += matT[ligne].count(couleur)
+            compteur+=matT[ligne].count(couleur)
         if compteur == NbCases:
             Endroit = "Centre"
             return compteur,couleur,Endroit, None
@@ -578,43 +567,6 @@ def RechercheCase(LstCouleur, NbCases):
                 Endroit = "Fabriques"
                 return compteur,couleur,Endroit,numFabrique
     return None, None, None, None
-        
-
-def ChoixRobotDansFabrique():
-    Tuile = None
-    while Tuile == None:
-        NumFabrique = randint(0,len(matF)-1)
-        NumTuile = randint(0,3)
-        Tuile = matF[NumFabrique][NumTuile]
-
-    nb_tuile = compter_couleur_identique(matF[NumFabrique], Tuile)
-    SurbrillanceFabrique(matF, NumFabrique, Tuile)
-    return nb_tuile, Tuile, NumFabrique
-
-def ChoixRobotDansCentre(centre):
-    Tuile = None
-    while Tuile == None:
-        LigneCentre = randint(0,3)
-        ColonneCentre = randint(0,6)
-        Tuile = matT[LigneCentre][ColonneCentre]
-    nb_tuile = compter_couleur_identique_matrice(centre, Tuile)
-    SurbrillanceCentre(centre, Tuile)
-    return nb_tuile, Tuile
-
-def ChoixLigneEscalierRobot(Tuile, escalier, num_Joueur, matM):
-    LigneEscalier = None
-    while LigneEscalier == None:
-        LigneEscalier = randint(0,5)
-        if LigneEscalier == 5:
-            break
-        elif LigneEscalier < 5 :
-            if Ligne_Escalier_Valide(Tuile, escalier[LigneEscalier]) == False or CouleurDejaDansMur(Tuile, matM[num_Joueur][LigneEscalier]) == False:
-                LigneEscalier = None
-    if LigneEscalier < 5:
-        SurbrillanceEscalier(escalier, LigneEscalier, num_Joueur)
-    else:
-        SurbrillancePlancher(num_joueur)
-    return LigneEscalier
 
 def DeterminerPremierJoueur(matP):
     for i in range(len(matP)):

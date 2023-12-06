@@ -6,7 +6,7 @@ from Fonctions_Sauvegarde import *
 from time import *
 from upemtk import *
 from math import *
-from random import randint
+from random import randrange
 
 
 ######################################################################################################################
@@ -42,7 +42,7 @@ def RemplirFabrique(NbJoueurs, Sac):
             ZoneFabrique[i] = [None,None,None,None]
         else:
             for j in range(4):
-                couleur = randint(0, len(Sac) - 1)
+                couleur = randrange(0, len(Sac))
                 ZoneFabrique[i].append(Sac.pop(couleur))
                 nbTuilesDansSac += -1
     return ZoneFabrique
@@ -594,17 +594,17 @@ def ActualisationMatFinDeTour(murExemple, murCoeff, matM, num_joueur, ligne, Tui
             matM[num_joueur][ligne][i] = Tuile
             break
 
-def case_valide(M,i,j):
-    n = len(M)
+def case_valide(n,i,j):
     return (0 <= i <= (n - 1) and 0 <= j <= (n - 1))
 
 def CalculPointsUneCase(num_joueur, score, coord, murCoeff):
     ComptV = 0
+    n = len(murCoeff[num_joueur])
     for DepV in [-1,1]:
         i = coord[0] + DepV
         j = coord[1]
         while True:
-            if case_valide(murCoeff[num_joueur],i,j) and murCoeff[num_joueur][i][j] == 1:
+            if case_valide(n,i,j) and murCoeff[num_joueur][i][j] == 1:
                 ComptV += 1
                 i += DepV
             else:
@@ -614,7 +614,7 @@ def CalculPointsUneCase(num_joueur, score, coord, murCoeff):
         i = coord[0]
         j = coord[1] + DepH
         while True:
-            if case_valide(murCoeff[num_joueur],i,j) and murCoeff[num_joueur][i][j] == 1:
+            if case_valide(n,i,j) and murCoeff[num_joueur][i][j] == 1:
                 ComptH += 1
                 j += DepH
             else:
@@ -639,10 +639,11 @@ def CalculMalus(num_joueur, matP, score):
             break
 
 def VideEscalier(num_joueur, matE):
+    n = len(matE[num_joueur][0])
     for ligne in range(len(matE[num_joueur])):
         if matE[num_joueur][ligne][-2] != '':
             Tuile = matE[num_joueur][ligne][-2]
-            for i in range(len(matE[num_joueur][ligne])):
+            for i in range(n):
                 if matE[num_joueur][ligne][i] == Tuile:
                     matE[num_joueur][ligne][i] =''
                 matE[num_joueur][ligne][-1] = 'FlecheR'
@@ -684,9 +685,10 @@ def BonusLigne(matcoeff, score):
     return score
 
 def BonusColonne(matcoeff, score):
+    n=len(matcoeff)
     for i in range(len(matcoeff[0])):
         Colonne = True
-        for j in range(len(matcoeff)):
+        for j in range(n):
             if matcoeff[j][i] == 0:
                 Colonne = False
                 break

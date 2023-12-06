@@ -5,7 +5,6 @@ from Fonctions_Graphique import *
 from time import *
 from upemtk import *
 from math import *
-from random import randint
 
 
 ########################################################################################################

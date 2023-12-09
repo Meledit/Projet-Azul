@@ -7,10 +7,27 @@ from time import *
 from upemtk import *
 from math import *
 from random import randrange
+from functools import wraps
+from inspect import *
 
 
 ######################################################################################################################
-
+def lru_cache_possible(f):
+    @wraps(f)
+    def decoration(*args, **kwargs):
+        # print("Appel de la fonction", str(f.__name__),":")
+        arguments = signature(f).bind(*args, **kwargs).arguments
+        hashable = True
+        for key in arguments:
+            if not arguments[key].__hash__:
+                hashable = False
+        # if hashable:
+        #     print("\ttous les paramètres sont hashables, lru_cache est utilisable")
+        # else:
+        #     print("\tcertains paramètres ne sont pas hashables, lru_cache est inutilisable")
+        r = f(*args, **kwargs)
+        return r
+    return decoration
 
 def Choix_Nb_Joueur():
     ''' Determine le nombre de joueur, et le genre des joueurs en fonction de l'endroit où clique l'utilisateur '''
@@ -65,6 +82,7 @@ def confirmer():
         if minxR < coordonee[0] < maxxR and minyR < coordonee[1] < maxyR:
             return False
 
+@lru_cache_possible
 def determiner_fabrique_selectioner(coordonee, NbJoueur):
     ''' Renvoie le numero de la fabrique selectionée en fonction du nombre de fabriques totale et de l'endroit où a cliqué le joueur'''
     NbDeFabrique =(NbJoueur * 2) + 1
@@ -74,7 +92,7 @@ def determiner_fabrique_selectioner(coordonee, NbJoueur):
             if coordonee[0] >(i*n + n//4 + tailleC - tailleC) and coordonee[0]<(i*n + n//4 + 2*tailleC):
                 return i
         return None
-    elif clic_valide_centre(coordonee):
+    elif clic_valide_table(coordonee):
         return 10
 
 def clic_valide_fabrique(coordonee, num_fabrique, NbJoueurs):
@@ -117,10 +135,10 @@ def determiner_tuile_selectioner(coordonne, M, num_fabrique, NbJoueurs):
     else:
         return M[num_fabrique][x + y + 1]
 
-def actualiser_fabrique(matF, num_fabrique):
+def actualiser_fabrique(fabriques, num_fabrique):
     ''' Remplit la fabrique sélectionner de None, pour que les cases ne soient pas dessiner'''
-    for i in range(len(matF[num_fabrique])):
-        matF[num_fabrique][i] = None
+    for i in range(len(fabriques[num_fabrique])):
+        fabriques[num_fabrique][i] = None
 
 def recup_clic():
     '''Récupère les coordonees du clic'''
@@ -155,10 +173,8 @@ def clic_valide_escalier(coordonee, numJoueur):
     maxx = minx + 7 * tailleC
     maxy = miny + 4/6*tailleC + 5*tailleC
 
-    if coordonee[0]  < minx or coordonee[0] > maxx or coordonee[1] < miny or coordonee[1] > maxy:
-        return False
-    else:
-        return True
+    return not(coordonee[0]  < minx or coordonee[0] > maxx or coordonee[1] < miny or coordonee[1] > maxy)
+
 
 def determiner_ligne_selectioner(coordonee, numJoueur):
     ''' Détermine quel ligne d'escalier ou plancher le joueur a sélectionné'''
@@ -182,21 +198,22 @@ def determiner_ligne_selectioner(coordonee, numJoueur):
         elif coordonee[1]> DebutPlancher and coordonee[1] < DebutPlancher + tailleC and XDebutPlancher<coordonee[0] and coordonee[0]<XFinPlancher:
             return 5
 
-def SelectionTuilesEtFabrique(matF, NbJoueur, centre):
+
+def SelectionTuilesEtFabrique(fabriques, nbJoueurs, table):
     '''Renvoie la tuile sélectionée, la fabrique où a été sélectionnée la tuile et le nombre de tuile de cette couleur dans la fabrique'''
     fabrique = None
     while fabrique == None:
         coordonee=recup_clic()
-        fabrique = determiner_fabrique_selectioner(coordonee, NbJoueur)
+        fabrique = determiner_fabrique_selectioner(coordonee, nbJoueurs)
     if fabrique == 10:
-        tuile = determiner_tuile_selectioner_dans_centre(coordonee, centre)
-        nb_tuile = compter_couleur_identique_matrice(centre, tuile)
-        SurbrillanceCentre(centre, tuile)
+        tuile = determiner_tuile_selectioner_dans_table(coordonee, table)
+        nb_tuile = table.count(tuile)
+        SurbrillanceTable(table, tuile)
         return fabrique, tuile, nb_tuile, coordonee
     else:
-        tuile = determiner_tuile_selectioner(coordonee, matF, fabrique, NbJoueur)
-        nb_tuile = compter_couleur_identique(matF[fabrique], tuile)
-        SurbrillanceFabrique(matF, fabrique, tuile)
+        tuile = determiner_tuile_selectioner(coordonee, fabriques, fabrique, nbJoueurs)
+        nb_tuile = compter_couleur_identique(fabriques[fabrique], tuile)
+        SurbrillanceFabrique(fabriques, fabrique, tuile)
         return fabrique, tuile, nb_tuile, coordonee
 
 def SelectionLigneEscalier(joueur):
@@ -214,7 +231,7 @@ def SelectionLigneEscalier(joueur):
 
     return ligne_escalier
 
-def ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nb_tuile, ligne_select, centre, plancher, GenreJoueur):
+def ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nb_tuile, ligne_select, table, plancher, GenreJoueur):
     ''' Deplace les tuiles venant d'une fabrique vers le plateau d'un joueur si ce dernier a confirmer ce choix '''
     Dessine_boutons()
     if GenreJoueur == 'Bot':
@@ -222,7 +239,7 @@ def ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nb_tuile, ligne_select, 
     else:
         A_confirme = confirmer()
     if A_confirme == False:
-        update_ecran(NbJoueur, matM, matP, matE, matT, matF, score, num_joueur)
+        update_ecran(NbJoueur, murs, planchers, escaliers, table, fabriques, score, num_joueur)
         return False
     else:
         PlaceDispo =(len(ligne_select) - ligne_select.count(None) - ligne_select.count(tuile) - 1)
@@ -231,70 +248,72 @@ def ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nb_tuile, ligne_select, 
         else:
             TuileAPlaceDansEscalier = PlaceDispo
 
-        FabriqueVersCentre(centre, matF[fabrique], tuile)
+        FabriqueVersTable(table, fabriques[fabrique], tuile)
         actualiser_ligne_escalier(ligne_select, tuile, TuileAPlaceDansEscalier)
-        actualiser_fabrique(matF, fabrique)
+        actualiser_fabrique(fabriques, fabrique)
 
         if assez_de_place(nb_tuile, ligne_select,tuile) == False:
             tuile_a_placer_dans_plancher=nb_tuile-TuileAPlaceDansEscalier
             actualiser_plancher(plancher,tuile, tuile_a_placer_dans_plancher)
-        update_ecran(NbJoueur, matM, matP, matE, matT, matF, score, num_joueur)
+        update_ecran(NbJoueur, murs, planchers, escaliers, table, fabriques, score, num_joueur)
         return True
 
-def DeroulementTour(NbJoueur, matF, joueur, escalier, centre, plancher, GenreJoueur, matM, test):
+def DeroulementTour(NbJoueur, fabriques, joueur, escalier, table, plancher, GenreJoueur, murs, test):
     ''' Deplace les tuiles sélectionnés, vers la zone sélectionnés puis renvoie True, une fois finie'''
     if GenreJoueur == 'Humain':
         tuile = None
         while tuile == None:
-            fabrique, tuile, nb_tuile, coordonee = SelectionTuilesEtFabrique(matF, NbJoueur, centre)
-            while not clic_valide_centre(coordonee) and not clic_valide_fabrique(coordonee, fabrique, NbJoueur) :
-                coordonee = recup_clic()
+            fabrique, tuile, nb_tuile, coordonee = SelectionTuilesEtFabrique(fabriques, NbJoueur, table)
+            #FIXME Pas utile normalement
+            # while not clic_valide_table(coordonee) and not clic_valide_fabrique(coordonee, fabrique, NbJoueur) :
+            #     print('WHILE')
+            #     coordonee = recup_clic()
             if clic_valide_fabrique(coordonee, fabrique, NbJoueur):
                 if tuile == None:
-                    break
+                    continue
                 ligne_escalier = SelectionLigneEscalier(joueur)
                 if ligne_escalier == 5:
                     SurbrillancePlancher(joueur)
-                    return ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nb_tuile, plancher, centre,plancher, GenreJoueur)
+                    return ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nb_tuile, plancher, table, plancher, GenreJoueur)
                 else:
-                    while not Ligne_Escalier_Valide(tuile, escalier[ligne_escalier]) or not CouleurDejaDansMur(tuile, matM[joueur][ligne_escalier]):
+                    while not Ligne_Escalier_Valide(tuile, escalier[ligne_escalier]) or not CouleurDejaDansMur(tuile, murs[joueur][ligne_escalier]):
                         ligne_escalier = SelectionLigneEscalier(joueur)
                         if ligne_escalier == 5:
                             SurbrillancePlancher(joueur)
-                            return ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nb_tuile, plancher, centre,plancher, GenreJoueur)
+                            return ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nb_tuile, plancher, table,plancher, GenreJoueur)
                     SurbrillanceEscalier(escalier, ligne_escalier, joueur)
-                    return ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nb_tuile, escalier[ligne_escalier], centre,plancher, GenreJoueur)
+                    return ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nb_tuile, escalier[ligne_escalier], table,plancher, GenreJoueur)
 
-            elif clic_valide_centre(coordonee):
-                tuile, nb_tuile = SelectionTuileCentre(centre, coordonee)
+            elif clic_valide_table(coordonee):
+                tuile, nb_tuile = SelectionTuileTable(table, coordonee)
                 if tuile == None:
                     break
                 ligne_escalier = SelectionLigneEscalier(joueur)
                 if ligne_escalier == 5:
                     SurbrillancePlancher(joueur)
-                    return ConfirmerDeplacementDepuisCentre(centre, tuile, nb_tuile, plancher, plancher, GenreJoueur)
+                    return ConfirmerDeplacementDepuisTable(table, tuile, nb_tuile, plancher, plancher, GenreJoueur)
                 else:
-                    while not Ligne_Escalier_Valide(tuile, escalier[ligne_escalier]) or not CouleurDejaDansMur(tuile, matM[joueur][ligne_escalier]):
+                    while not Ligne_Escalier_Valide(tuile, escalier[ligne_escalier]) or not CouleurDejaDansMur(tuile, murs[joueur][ligne_escalier]):
                         ligne_escalier = SelectionLigneEscalier(joueur)
                         if ligne_escalier == 5:
                             SurbrillancePlancher(joueur)
-                            return ConfirmerDeplacementDepuisCentre(centre, tuile, nb_tuile, plancher, plancher, GenreJoueur)
+                            return ConfirmerDeplacementDepuisTable(table, tuile, nb_tuile, plancher, plancher, GenreJoueur)
                     SurbrillanceEscalier(escalier, ligne_escalier, joueur)
-                    return ConfirmerDeplacementDepuisCentre(centre, tuile, nb_tuile, escalier[ligne_escalier],plancher, GenreJoueur)
+                    return ConfirmerDeplacementDepuisTable(table, tuile, nb_tuile, escalier[ligne_escalier],plancher, GenreJoueur)
 
     elif GenreJoueur == 'Bot':
-        TourIA(matF,matT,matE,matP,num_joueur, GenreJoueur, matM, test)
+        TourIA(fabriques,table,escaliers,planchers,num_joueur, GenreJoueur, murs, test)
         return True
 
-def ConfirmerDeplacementDepuisCentre(centre, tuile, nb_tuile, ligne_select, plancher, GenreJoueur):
-    ''' Deplace les tuiles venant du centre vers le plateau d'un joueur si ce dernier a confirmer ce choix '''
+def ConfirmerDeplacementDepuisTable(table, tuile, nb_tuile, ligne_select, plancher, GenreJoueur):
+    ''' Deplace les tuiles venant du table vers le plateau d'un joueur si ce dernier a confirmer ce choix '''
     Dessine_boutons()
     if GenreJoueur == 'Bot':
         A_confirme = True
     else:
         A_confirme = confirmer()
     if A_confirme == False:
-        update_ecran(NbJoueur, matM, matP, matE, matT, matF, score, num_joueur)
+        update_ecran(NbJoueur, murs, planchers, escaliers, table, fabriques, score, num_joueur)
         return False
     else:
         if tuile == VJeton:
@@ -312,51 +331,37 @@ def ConfirmerDeplacementDepuisCentre(centre, tuile, nb_tuile, ligne_select, plan
             if assez_de_place(nb_tuile, ligne_select,tuile) == False:
                 tuile_a_placer_dans_plancher=nb_tuile-TuileAPlaceDansEscalier
                 actualiser_plancher(plancher,tuile, tuile_a_placer_dans_plancher)
-            if centre[0][0] == VJeton:      #Code Hexadécimal du jeton -1
-                JetonPremierJoueurVersPlancher(centre, plancher)               
+
+            if table[0] == VJeton:      #Code Hexadécimal du jeton -1
+                JetonPremierJoueurVersPlancher(table, plancher)               
             
-            actualiser_centre(centre, tuile)
-            update_ecran(NbJoueur, matM, matP, matE, matT, matF, score, num_joueur)
+        actualiser_table(table, tuile)
+        update_ecran(NbJoueur, murs, planchers, escaliers, table, fabriques, score, num_joueur)
         return True
 
-def actualiser_centre(centre, tuile):
-    ''' Met à jour la matrice Centre, en retirant les tuiles sélectionnées par le joueur pour les remplacer par des None, puis trie la matrice afin de mettre les None en fin de matrice '''
-    for i in range(len(centre)):
-        for j in range(len(centre[i])):
-            if centre[i][j] == tuile:
-                centre[i][j] = None
-
-    Lstcentre = []
-    for i in range(len(centre)):
-        for j in range(len(centre[i])):
-            Lstcentre.append(centre[i][j])
-
-    NbDeNone = Lstcentre.count(None)
+def actualiser_table(table, tuile):
+    ''' Met à jour la matrice Table, en retirant les tuiles sélectionnées par le joueur pour les remplacer par des None, puis trie la matrice afin de mettre les None en fin de matrice '''
+    for i in range(len(table)):
+        if table[i] == tuile:
+            table[i] = None
+    NbDeNone = table.count(None)
     for i in range(NbDeNone):
-        Lstcentre.remove(None)
-    Lstcentre.sort()
+        table.remove(None)
+    table.sort()
+    table.extend([None]*NbDeNone)
 
-    for i in range(NbDeNone):
-        Lstcentre.append(None)
-
-    m=0
-    for i in range(len(centre)):
-        for j in range(len(centre[i])):
-            centre[i][j] = Lstcentre[m]
-            m += 1
-
-def JetonPremierJoueurVersPlancher(centre, plancher):
-    ''' Envoie le jeton vert premier joueur, vers le plancher du joueur qui a pioché dans le centre en premier'''
-    if centre[0][0] == VJeton:
-        centre[0][0] = None
+def JetonPremierJoueurVersPlancher(table, plancher):
+    ''' Envoie le jeton vert premier joueur, vers le plancher du joueur qui a pioché dans le table en premier'''
+    if table[0] == VJeton:
+        table[0] = None
 
     for m in range(len(plancher)):
         if plancher[m] == '':
            plancher[m] = VJeton
            break
 
-def clic_valide_centre(coordonee):
-    ''' Verifie si le joueur a cliqué dans le centre '''
+def clic_valide_table(coordonee):
+    ''' Verifie si le joueur a cliqué dans le table '''
     minx = 4*longueur//10
     miny = 7*hauteur//15
     maxx = minx + 8*tailleC
@@ -366,15 +371,15 @@ def clic_valide_centre(coordonee):
     else:
         return True
 
-def SelectionTuileCentre(Centre,coordonee):
-    '''Renvoie la tuile sélectionée et le nombre de tuile de cette couleur dans le centre'''
-    tuile = determiner_tuile_selectioner_dans_centre(coordonee, Centre)
-    nb_tuile = compter_couleur_identique_matrice(Centre, tuile)
-    SurbrillanceCentre(Centre, tuile)
+def SelectionTuileTable(table,coordonee):
+    '''Renvoie la tuile sélectionée et le nombre de tuile de cette couleur dans le table'''
+    tuile = determiner_tuile_selectioner_dans_table(coordonee, table)
+    nb_tuile = table.count(tuile)
+    SurbrillanceTable(table, tuile)
     return tuile, nb_tuile
 
-def determiner_tuile_selectioner_dans_centre(coordonne, centre):
-    ''' Détermine la couleur de la tuile où a cliqué le joueur, s'il a cliqué dans le centre'''
+def determiner_tuile_selectioner_dans_table(coordonne, table):
+    ''' Détermine la couleur de la tuile où a cliqué le joueur, s'il a cliqué dans le table'''
     xInit = 4*longueur//10
     x = coordonne[0]
     for l in range(7):
@@ -390,10 +395,10 @@ def determiner_tuile_selectioner_dans_centre(coordonne, centre):
         if y <= yTuile:
             i = m
             break
-    return centre[i][j]
+    return table[i*7+j]
 
 def compter_couleur_identique_matrice(mat, tuile):
-    '''Compte le nombre de tuile de la même couleur que la tuile que le joueur '''
+    '''Compte le nombre de tuile de la même couleur que la tuile du joueur '''
     nb = 0
     for i in range(len(mat)):
         for j in range(len(mat[i])):
@@ -410,20 +415,14 @@ def Ligne_Escalier_Valide(tuile, ligne_escalier):
             return False
     return True
 
-def FabriqueVersCentre(MatT, Fabrique, tuile):
-    ''' Deplace les tuiles restantes dans la fabrique sélectionnée vers le centre'''
-    PosV = 0
-    PosH = 0
-    longueur_table = len(MatT[0])
+def FabriqueVersTable(table, Fabrique, tuile):
+    ''' Deplace les tuiles restantes dans la fabrique sélectionnée vers le table'''
+    j = 0
     for i in range(len(Fabrique)):
         if Fabrique[i] != tuile:
-            while MatT[PosV][PosH] != None:
-                if PosH < longueur_table-1:
-                    PosH +=1
-                else:
-                    PosV += 1
-                    PosH = 0
-            MatT[PosV][PosH] = Fabrique[i]
+            while table[j] != None:
+                j+=1
+            table[j] = Fabrique[i]
 
 def assez_de_place(nb_tuile, ligne_escalier, tuile):
     '''Renvoie True, si on peut placer toutes les tuiles sélectionnées dans la ligne d'escalier sélectionnée, et False sinon'''
@@ -463,135 +462,134 @@ def alterner_joueur(num_joueur, nbjoueur):
         return 0
     return new_num_joueur
 
-def Fabriques_vides(matF):
+def Fabriques_vides(fabriques):
     ''' Renvoie True si toutes les fabriques sont vides'''
-    n = len(matF)
-    p = len(matF[0])
+    n = len(fabriques)
+    p = len(fabriques[0])
     for i in range(n):
         for j in range(p):
-            if matF[i][j] != None:
+            if fabriques[i][j] != None:
                 return False
     return True
 
-def rotation_finie(matF, centre):
-    ''' Renvoie True, si la rotation actuelle est finie, c'est à dire s'il n'y pas plus de tuiles dans les fabrique et dans le centre'''
-    if not Fabriques_vides(matF) or centre[0][0] != None:
+def rotation_finie(fabriques, table):
+    ''' Renvoie True, si la rotation actuelle est finie, c'est à dire s'il n'y pas plus de tuiles dans les fabrique et dans le table'''
+    if not Fabriques_vides(fabriques) or table[0] != None:
         return False
     return True
 
-def TourIA(matF,matT,matE,matP,num_joueur, GenreJoueur, matM, test):
+def TourIA(fabriques,table,escaliers,planchers,num_joueur, GenreJoueur, murs, test):
     ''' Gère le tour d'un joueur IA de manière intelligente'''
     temps = 2.5
     if test == 1:
         temps = 0.5
     LstMarge=[0,-1,-2,1,2,-3,-4,3,4]
     for marge in LstMarge:
-        TourFini = RemplirLignes(matE, murCoeff, murExemple, matT, matP, num_joueur, GenreJoueur, marge, temps)
+        TourFini = RemplirLignes(escaliers, murCoeff, murExemple, table, planchers, num_joueur, GenreJoueur, marge, temps)
         if TourFini:
             break
     if not TourFini:
-        RecherchePourPlancher(matT,matP,matF,GenreJoueur)
-    update_ecran(NbJoueur, matM, matP, matE, matT, matF, score, num_joueur)
+        RecherchePourPlancher(table,planchers,fabriques,GenreJoueur)
+    update_ecran(NbJoueur, murs, planchers, escaliers, table, fabriques, score, num_joueur)
 
-def RemplirLignes(matE,murCoeff, murExemple, matT,matP,num_joueur, GenreJoueur, marge, temps):
+def RemplirLignes(escaliers,murCoeff, murExemple, table,planchers,num_joueur, GenreJoueur, marge, temps):
     '''Remplit les lignes qui rapporte le plus de points'''
-    for ligne in range(len(matE[num_joueur])-1,-1,-1):
-        if matE[num_joueur][ligne][-2]=='':
-            CouleurAPrendre, CasesARemplir = CasesAChercher(ligne,num_joueur,murExemple,murCoeff, matE)
+    for ligne in range(len(escaliers[num_joueur])-1,-1,-1):
+        if escaliers[num_joueur][ligne][-2]=='':
+            CouleurAPrendre, CasesARemplir = CasesAChercher(ligne,num_joueur,murExemple,murCoeff, escaliers)
             CasesARemplir = CasesARemplir + marge
             if CasesARemplir > 0:
                 compteur,couleur,endroit,numFabrique = RechercheCase(CouleurAPrendre, CasesARemplir)
                 if compteur!=None:
-                    if endroit == "Centre":
-                        SurbrillanceCentre(matT,couleur)
-                        SurbrillanceEscalier(matE[num_joueur], ligne, num_joueur)
+                    if endroit == "Table":
+                        SurbrillanceTable(table,couleur)
+                        SurbrillanceEscalier(escaliers[num_joueur], ligne, num_joueur)
                         mise_a_jour()
                         sleep(temps)
-                        ConfirmerDeplacementDepuisCentre(matT, couleur, compteur, matE[num_joueur][ligne], matP[num_joueur], GenreJoueur)
+                        ConfirmerDeplacementDepuisTable(table, couleur, compteur, escaliers[num_joueur][ligne], planchers[num_joueur], GenreJoueur)
                         return True
                     elif endroit =="Fabriques":
-                        SurbrillanceFabrique(matF, numFabrique, couleur)
-                        SurbrillanceEscalier(matE[num_joueur], ligne, num_joueur)
+                        SurbrillanceFabrique(fabriques, numFabrique, couleur)
+                        SurbrillanceEscalier(escaliers[num_joueur], ligne, num_joueur)
                         mise_a_jour()
                         sleep(temps)
-                        ConfirmerDeplacementDepuisFabrique(numFabrique, couleur, compteur, matE[num_joueur][ligne], matT, matP[num_joueur], GenreJoueur)
+                        ConfirmerDeplacementDepuisFabrique(numFabrique, couleur, compteur, escaliers[num_joueur][ligne], table, planchers[num_joueur], GenreJoueur)
                         return True
     return False
 
-def RecherchePourPlancher(matT,matP,matF,GenreJoueur):
+def RecherchePourPlancher(table,planchers,fabriques,GenreJoueur):
     '''Cherche le nombre de cases minimum, si l'IA est obligé de jouer dans le plancher'''
     NbCase = 1
     while True:
         compteur,couleur,endroit,numFabrique = RechercheCase(['#FF4040','#4C5EFF','#80C324','#E1E1E1','#FFCC43'],NbCase)
         if compteur!=None:
-            if endroit == "Centre":
-                SurbrillanceCentre(matT,couleur)
+            if endroit == "Table":
+                SurbrillanceTable(table,couleur)
                 SurbrillancePlancher(num_joueur)
                 mise_a_jour()
-                ConfirmerDeplacementDepuisCentre(matT, couleur, compteur, matP[num_joueur], matP[num_joueur], GenreJoueur)
+                ConfirmerDeplacementDepuisTable(table, couleur, compteur, planchers[num_joueur], planchers[num_joueur], GenreJoueur)
                 return 
             elif endroit =="Fabriques":
-                SurbrillanceFabrique(matF, numFabrique, couleur)
+                SurbrillanceFabrique(fabriques, numFabrique, couleur)
                 SurbrillancePlancher(num_joueur)
                 mise_a_jour()
-                ConfirmerDeplacementDepuisFabrique(numFabrique, couleur, compteur, matP[num_joueur], matT, matP[num_joueur], GenreJoueur)
+                ConfirmerDeplacementDepuisFabrique(numFabrique, couleur, compteur, planchers[num_joueur], table, planchers[num_joueur], GenreJoueur)
                 return 
         NbCase+=1 
 
-def CasesAChercher(numLigneEscalier,num_joueur,murExemple,murCoeff,matE):
+def CasesAChercher(numLigneEscalier,num_joueur,murExemple,murCoeff,escaliers):
     '''Définit le nombre de cases à chercher et leurs couleurs'''
-    if matE[num_joueur][numLigneEscalier][-2-numLigneEscalier] != '':
-        CouleurAPrendre = [matE[num_joueur][numLigneEscalier][-2-numLigneEscalier]]
+    if escaliers[num_joueur][numLigneEscalier][-2-numLigneEscalier] != '':
+        CouleurAPrendre = [escaliers[num_joueur][numLigneEscalier][-2-numLigneEscalier]]
     else:
         CouleurAPrendre=[]
         for case in range(len(murCoeff[num_joueur][numLigneEscalier])):
             if murCoeff[num_joueur][numLigneEscalier][case] == 0:
                 CouleurAPrendre.append(murExemple[numLigneEscalier][case])
-    CasesARemplir = matE[num_joueur][numLigneEscalier].count('')
+    CasesARemplir = escaliers[num_joueur][numLigneEscalier].count('')
     return CouleurAPrendre, CasesARemplir
 
 def RechercheCase(LstCouleur, NbCases):
     '''L'IA cherche où elle peut trouver les cases dont elle a besoin'''
-    tailleMatT = len(matT)
-    nbFabriques = len(matF)
+    # tailletable = len(table)
+    # print("Recherche CASE TABLE",table)
+    nbFabriques = len(fabriques)
     for couleur in LstCouleur:
-        compteur = 0
-        for ligne in range(tailleMatT):
-            compteur+=matT[ligne].count(couleur)
+        compteur = table.count(couleur)
         if compteur == NbCases:
-            Endroit = "Centre"
+            Endroit = "Table"
             return compteur,couleur,Endroit, None
         for numFabrique in range(nbFabriques):
-            compteur = matF[numFabrique].count(couleur)
+            compteur = fabriques[numFabrique].count(couleur)
             if compteur == NbCases:
                 Endroit = "Fabriques"
                 return compteur,couleur,Endroit,numFabrique
     return None, None, None, None
 
-def DeterminerPremierJoueur(matP):
-    for i in range(len(matP)):
-        if VJeton in matP[i]:
+def DeterminerPremierJoueur(planchers):
+    for i in range(len(planchers)):
+        if VJeton in planchers[i]:
             return i
 
-def FinDeRotation(NbJoueur, matE, matM, murCoeff, murExemple, score, matP):
+def FinDeRotation(NbJoueur, escaliers, murs, murCoeff, murExemple, score, planchers):
     for numjoueur in range(NbJoueur):
-        ExaminerLigne(numjoueur,matE,matM,murCoeff,murExemple)
-        VideEscalier(numjoueur,matE)
-        CalculMalus(numjoueur, matP, score)
+        ExaminerLigne(numjoueur,escaliers,murs,murCoeff,murExemple)
+        VideEscalier(numjoueur,escaliers)
+        CalculMalus(numjoueur, planchers, score)
     return InitialiserPlanchers(NbJoueur)
 
-def ExaminerLigne(num_joueur, matE, matM, murCoeff, murExemple):
-    for ligne in range(len(matE[num_joueur])):
-        if matE[num_joueur][ligne][-2] != '':
-            Tuile = matE[num_joueur][ligne][-2]
-            ActualisationMatFinDeTour(murExemple, murCoeff, matM, num_joueur, ligne, Tuile)
+def ExaminerLigne(num_joueur, escaliers, murs, murCoeff, murExemple):
+    for ligne in range(len(escaliers[num_joueur])):
+        if escaliers[num_joueur][ligne][-2] != '':
+            Tuile = escaliers[num_joueur][ligne][-2]
+            ActualisationMatFinDeTour(murExemple, murCoeff, murs, num_joueur, ligne, Tuile)
 
-def ActualisationMatFinDeTour(murExemple, murCoeff, matM, num_joueur, ligne, Tuile):
+def ActualisationMatFinDeTour(murExemple, murCoeff, murs, num_joueur, ligne, Tuile):
     for i in range(len(murExemple[ligne])):
         if murExemple[ligne][i] == Tuile:
             murCoeff[num_joueur][ligne][i] = 1
             CalculPointsUneCase(num_joueur,score, (ligne,i),murCoeff)
-            matM[num_joueur][ligne][i] = Tuile
+            murs[num_joueur][ligne][i] = Tuile
             break
 
 def case_valide(n,i,j):
@@ -626,9 +624,9 @@ def CalculPointsUneCase(num_joueur, score, coord, murCoeff):
         Compteur = ComptH+ComptV +1
     score[num_joueur]+=Compteur
 
-def CalculMalus(num_joueur, matP, score):
-    for case in range(len(matP[num_joueur])):
-        if matP[num_joueur][case] != '':
+def CalculMalus(num_joueur, planchers, score):
+    for case in range(len(planchers[num_joueur])):
+        if planchers[num_joueur][case] != '':
             if case <= 1:
                 score[num_joueur] += -1
             elif case <=4:
@@ -638,15 +636,15 @@ def CalculMalus(num_joueur, matP, score):
         else:
             break
 
-def VideEscalier(num_joueur, matE):
-    n = len(matE[num_joueur][0])
-    for ligne in range(len(matE[num_joueur])):
-        if matE[num_joueur][ligne][-2] != '':
-            Tuile = matE[num_joueur][ligne][-2]
+def VideEscalier(num_joueur, escaliers):
+    n = len(escaliers[num_joueur][0])
+    for ligne in range(len(escaliers[num_joueur])):
+        if escaliers[num_joueur][ligne][-2] != '':
+            Tuile = escaliers[num_joueur][ligne][-2]
             for i in range(n):
-                if matE[num_joueur][ligne][i] == Tuile:
-                    matE[num_joueur][ligne][i] =''
-                matE[num_joueur][ligne][-1] = 'FlecheR'
+                if escaliers[num_joueur][ligne][i] == Tuile:
+                    escaliers[num_joueur][ligne][i] =''
+                escaliers[num_joueur][ligne][-1] = 'FlecheR'
 
 def CouleurDejaDansMur(tuile, LigneDuMur):
     '''Verifie si la couleur de la tuile à placer est déjà dans le mur ou non'''
@@ -671,11 +669,11 @@ def ConditionFinDePartie(murCoeff):
                 return mur
 
 ################## Calcul des bonus ############################################
-def BonusScore(nbjoueur, score, murCoeff, matM):
+def BonusScore(nbjoueur, score, murCoeff, murs):
     for i in range(nbjoueur):
         score[i] = BonusLigne(murCoeff[i],score[i])
         score[i] = BonusColonne(murCoeff[i],score[i])
-        score[i] = BonusCouleur(matM[i], score[i])
+        score[i] = BonusCouleur(murs[i], score[i])
     return score
 
 def BonusLigne(matcoeff, score):
@@ -732,39 +730,39 @@ if __name__ == '__main__':
         murExemple, murJoueur = LectureMatDepart(Fichier)
         NbJoueur, ListeTypeJoueur, test = EcranChoixNbJoueur()
         sac = InitialiserSac()
-        matF = RemplirFabrique(NbJoueur, sac)
-        matM = InitialiserMurs(NbJoueur, murJoueur)
-        matP = InitialiserPlanchers(NbJoueur)
-        matE = InitialiserEscaliers(NbJoueur)
-        matT = InitaliserCentreTable()
+        fabriques = RemplirFabrique(NbJoueur, sac)
+        murs = InitialiserMurs(NbJoueur, murJoueur)
+        planchers = InitialiserPlanchers(NbJoueur)
+        escaliers = InitialiserEscaliers(NbJoueur)
+        table = InitialiserTable()
         score = InitialiserScore(NbJoueur)
         murCoeff = InitialiserCoeffMur(NbJoueur)
     else:
-        NbJoueur,ListeTypeJoueur,sac,matF,matM,matP,matE,matT,score,murCoeff,murExemple,num_joueur,test = LectureFichierSauvegarde(Save)
+        NbJoueur,ListeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,num_joueur,test = LectureFichierSauvegarde(Save)
 
 ################################################################################
 
 ######################### Boucle principale du jeu #############################
-    update_ecran(NbJoueur,matM,matP,matE,matT,matF,score, num_joueur)
+    update_ecran(NbJoueur,murs,planchers,escaliers,table,fabriques,score, num_joueur)
     #quadrillage()
     while True:
-        EcritureFichierSauvegarde(Save, NbJoueur,ListeTypeJoueur,sac,matF,matM,matP,matE,matT,score,murCoeff,murExemple,num_joueur, test)
-        tour_fini = DeroulementTour(NbJoueur, matF, num_joueur, matE[num_joueur], matT, matP[num_joueur], ListeTypeJoueur[num_joueur], matM, test)
+        EcritureFichierSauvegarde(Save, NbJoueur,ListeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,num_joueur, test)
+        tour_fini = DeroulementTour(NbJoueur, fabriques, num_joueur, escaliers[num_joueur], table, planchers[num_joueur], ListeTypeJoueur[num_joueur], murs, test)
         while not tour_fini:
-            tour_fini = DeroulementTour(NbJoueur, matF, num_joueur, matE[num_joueur], matT, matP[num_joueur], ListeTypeJoueur[num_joueur], matM, test)
+            tour_fini = DeroulementTour(NbJoueur, fabriques, num_joueur, escaliers[num_joueur], table, planchers[num_joueur], ListeTypeJoueur[num_joueur], murs, test)
         num_joueur = alterner_joueur(num_joueur, NbJoueur)
-        if rotation_finie(matF, matT):
+        if rotation_finie(fabriques, table):
             if len(sac)==0:
                 sac=InitialiserSac()
-            matF = RemplirFabrique(NbJoueur, sac)
-            num_joueur = DeterminerPremierJoueur(matP)
-            matT[0][0] = VJeton
-            matP = FinDeRotation(NbJoueur, matE, matM, murCoeff, murExemple, score, matP)
-        update_ecran(NbJoueur,matM,matP,matE,matT,matF,score, num_joueur)
+            fabriques = RemplirFabrique(NbJoueur, sac)
+            num_joueur = DeterminerPremierJoueur(planchers)
+            table[0] = VJeton
+            planchers = FinDeRotation(NbJoueur, escaliers, murs, murCoeff, murExemple, score, planchers)
+        update_ecran(NbJoueur,murs,planchers,escaliers,table,fabriques,score, num_joueur)
         condition = ConditionFinDePartie(murCoeff)
         if condition != None:
-            score = BonusScore(NbJoueur, score, murCoeff, matM)
-            update_ecran(NbJoueur,matM,matP,matE,matT,matF,score, num_joueur)
+            score = BonusScore(NbJoueur, score, murCoeff, murs)
+            update_ecran(NbJoueur,murs,planchers,escaliers,table,fabriques,score, num_joueur)
             break
 
 ################################################################################

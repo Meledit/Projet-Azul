@@ -89,7 +89,7 @@ def Dessine_zone_fabrique():
     '''Dessine la ligne pour limiter la zone des fabriques'''
     ligne(0, 2 *(hauteur // 15), longueur, 2 *(hauteur // 15), 'white', 2)
 
-def Dessine_MatF(M):
+def Dessine_fabriques(M):
     '''Dessine la zone des fabriques entièrement (tuile, cercle, ligne)'''
     n = len(M)
     rayon = sqrt((tailleC ** 2) * 2) + 5
@@ -106,28 +106,33 @@ def Dessine_boutons():
     x = 19 * longueur // 20
     y = 4 * hauteur // 15
 
-    centrex = x +((longueur // 20) // 2)
-    centrey = y +(2 * hauteur // 15)
+    tablex = x +((longueur // 20) // 2)
+    tabley = y +(2 * hauteur // 15)
     rayon =(longueur // 20) // 3
 
     rectangle(x, y, x + longueur // 10, 2 * y, 'white', J, 2)
-    cercle(centrex, centrey, rayon, 'white', '', 4)
+    cercle(tablex, tabley, rayon, 'white', '', 4)
 
     y = 9* hauteur // 15
-    centrey = 11*hauteur // 15
+    tabley = 11*hauteur // 15
     rectangle(x, y, x + longueur // 10, y + 4 * hauteur//15, 'white', R, 2)
-    ligne(centrex-rayon, centrey-rayon, centrex+rayon, centrey+rayon, 'white', 4)
-    ligne(centrex-rayon, centrey+rayon, centrex+rayon, centrey-rayon, 'white', 4)
+    ligne(tablex-rayon, tabley-rayon, tablex+rayon, tabley+rayon, 'white', 4)
+    ligne(tablex-rayon, tabley+rayon, tablex+rayon, tabley-rayon, 'white', 4)
 
-def Dessine_table(xInit, yInit, matT):
-    '''Dessine le centre de table en fonction de la matrice fournie'''
-    longueurTable = matT[0]
-    for i in range(len(matT)):
-        y = yInit + i * tailleC + i * tailleC//6
-        for j in range(len(longueurTable)):
-            x = xInit + j*tailleC + j * tailleC//6
-            if matT[i][j] != None:
-                rectangle(x, y, x + tailleC, y + tailleC, 'white', matT[i][j], 2)
+def Dessine_table(xInit, yInit, table):
+    '''Dessine le table en fonction de la matrice fournie'''
+    y = yInit
+    x = xInit
+    for i in range(len(table)):
+        if table[i] != None:
+            rectangle(x+tailleC, y+tailleC, x + 2*tailleC, y + 2*tailleC, '#212936', '#212936', 1)
+            rectangle(x, y, x + tailleC, y + tailleC, 'white', table[i], 2)   
+        else:
+            break
+        x += 7*tailleC//6
+        if i%7 == 6:
+            x = xInit
+            y += 7*tailleC//6
 
 def Dessine_Un_Mur(xInit,yInit,M):
     '''Dessine un mur, en partant du coin supérieur gauche de coordonnées (xInit, yInit) et de la matrice fournie'''
@@ -171,24 +176,23 @@ def EcrireScore(xInit, yInit, Lst, NumJoueur):
     AffichageScore = 'Score '+ str(Lst[NumJoueur])
     texte(xInit,yInit, AffichageScore, 'white', 'nw', "Arial", int(tailleC/2))
 
-def Dessine_Une_Feuille_Joueur(xInit, yInit, MatM, MatP, MatE, LstScore, numJoueur):
+def Dessine_Une_Feuille_Joueur(xInit, yInit, murs, planchers, escaliers, LstScore, numJoueur):
     '''Dessine la feuille d'un joueur à partir des matrices et listes fournies'''
     x = xInit + 7*tailleC
     y = yInit + 7/6*tailleC + 5*tailleC
-    dessine_ombre(x + tailleC, yInit + tailleC, MatM[numJoueur])
-    dessine_ombre(xInit + tailleC, yInit + tailleC, MatE[numJoueur])
-    dessine_ombre_P(xInit + tailleC, y + tailleC, MatP[numJoueur])
-    Dessine_Un_Escalier(xInit, yInit, MatE[numJoueur])
-    Dessine_Un_Mur(x, yInit,MatM[numJoueur])
-    Dessine_Un_Plancher(xInit, y, MatP[numJoueur])
+    dessine_ombre(x + tailleC, yInit + tailleC, murs[numJoueur])
+    dessine_ombre(xInit + tailleC, yInit + tailleC, escaliers[numJoueur])
+    dessine_ombre_P(xInit + tailleC, y + tailleC, planchers[numJoueur])
+    Dessine_Un_Escalier(xInit, yInit, escaliers[numJoueur])
+    Dessine_Un_Mur(x, yInit,murs[numJoueur])
+    Dessine_Un_Plancher(xInit, y, planchers[numJoueur])
     x += 2*tailleC
     EcrireScore(x, y, LstScore, numJoueur)
 
-def Dessine_Le_Plateau_Entier(nbJoueur,MatM, MatP, MatE, MatT,MatF, Score, numjoueur):
-    '''Dessine les feuilles de tout les joueurs, la zone de fabrique et le centre de table à partir des matrices et listes fournies'''
-    Dessine_MatF(MatF)
-    dessine_ombre((4 * longueur//10) + tailleC,(7 * hauteur//15) + tailleC, MatT)
-    Dessine_table(4 * longueur//10, 7 * hauteur//15, MatT)
+def Dessine_Le_Plateau_Entier(nbJoueur,murs, planchers, escaliers, table,fabriques, Score, numjoueur):
+    '''Dessine les feuilles de tout les joueurs, la zone de fabrique et le table de table à partir des matrices et listes fournies'''
+    Dessine_fabriques(fabriques)
+    Dessine_table(4 * longueur//10, 7 * hauteur//15, table)
     for i in range(nbJoueur):
         if i%2 == 0:
             x = longueur//10
@@ -198,15 +202,15 @@ def Dessine_Le_Plateau_Entier(nbJoueur,MatM, MatP, MatE, MatT,MatF, Score, numjo
             y = 3*hauteur//15
         else:
             y = 10*hauteur//15
-        Dessine_Une_Feuille_Joueur(x,y,MatM, MatP, MatE, Score, i)
+        Dessine_Une_Feuille_Joueur(x,y,murs, planchers, escaliers, Score, i)
         if numjoueur == i:
             Cadre(x - tailleC, y - tailleC, CouleurJoueur[numjoueur])
 
-def update_ecran(NbJoueur, matM, matP, matE, matT, matF, LstScore, numjoueur):
+def update_ecran(NbJoueur, murs, planchers, escaliers, table, fabriques, LstScore, numjoueur):
     '''Mets à jour le plateau entier, à partir des matrices et listes fournies'''
     efface_tout()
     Background()
-    Dessine_Le_Plateau_Entier(NbJoueur,matM, matP, matE, matT, matF, LstScore, numjoueur)
+    Dessine_Le_Plateau_Entier(NbJoueur,murs, planchers, escaliers, table, fabriques, LstScore, numjoueur)
     logo()
     mise_a_jour()
 
@@ -229,44 +233,52 @@ def dessine_ombre(xInit, yInit, M):
                 if M[i][j] == 'FlecheR' or M[i][j] == 'FlecheV':
                     polygone([x, y ,x + tailleC, y + tailleC/2, x, y + tailleC], '#212936', '#212936', 1)
                 else:
-                    rectangle(x, y, x + tailleC, y + tailleC, '#212936', '#212936', 1)
+                    if M[i][j] == '':
+                        rectangle(x, y, x + tailleC, y + tailleC, '#212936', '', 2)
+                    else:
+                        rectangle(x, y, x + tailleC, y + tailleC, '#212936', '#212936', 1)
 
 def dessine_ombre_P(xInit, yInit, lst):
     '''Dessine l'ombre d'une liste'''
     for i in range (len(lst)):
         x = xInit + i * tailleC + i * tailleC/6
         if lst[i] != None:
-            rectangle(x, yInit, x + tailleC, yInit + tailleC, '#212936', '#212936', 1)
+            if lst[i]=='':
+                rectangle(x, yInit, x + tailleC, yInit + tailleC, '#212936', '', 2)
+            else:
+                rectangle(x, yInit, x + tailleC, yInit + tailleC, '#212936', '#212936', 1)
 ##################################################################################################
 
 ################### Surbrillance #################################################################
-def SurbrillanceFabrique(MatF, numMatF, tuile):
+def SurbrillanceFabrique(fabriques, numfabriques, tuile):
     '''Met les tuiles sélectionnées dans la fabrique en surbrillance'''
     if tuile == None:
         return
     yInit = hauteur//15
-    xInit = longueur//len(MatF)
+    xInit = longueur//len(fabriques)
     y = yInit-tailleC
-    for i in range(len(MatF[numMatF]) // 2):
-        x =(xInit // 4) +(numMatF * xInit) +i*tailleC
-        if MatF[numMatF][i] == tuile:
+    for i in range(len(fabriques[numfabriques]) // 2):
+        x =(xInit // 4) +(numfabriques * xInit) +i*tailleC
+        if fabriques[numfabriques][i] == tuile:
             rectangle(x, y, x+tailleC, y+tailleC, '#F3FE62', '', 4)
-        if MatF[numMatF][2+i] == tuile:
+        if fabriques[numfabriques][2+i] == tuile:
             rectangle(x, y+tailleC, x+tailleC, y+2*tailleC, '#F3FE62', '', 4)
 
 
-def SurbrillanceCentre(Centre, tuile):
-    '''Met les tuiles sélectionnées dans le centre en surbrillance'''
+def SurbrillanceTable(table, tuile):
+    '''Met les tuiles sélectionnées dans le table en surbrillance'''
     if tuile == None:
         return
     xInit = 4*longueur//10
-    yInit = 7*hauteur//15
-    for i in range(len(Centre)):
-        y = yInit + i*tailleC + i*tailleC//6
-        for j in range(len(Centre[i])):
-            x = xInit + j*tailleC + j*tailleC//6
-            if Centre[i][j] == tuile:
+    y = 7*hauteur//15
+    x = xInit
+    for i in range(len(table)):
+        if table[i] == tuile:
                 rectangle(x, y, x+tailleC, y+tailleC, '#F3FE62', '', 4)
+        x += 7*tailleC//6
+        if i %7 == 6:
+            x = xInit
+            y += 7*tailleC//6
 
 def SurbrillanceEscalier(Escalier, NumLigneEscalier, NumJoueur):
     '''Met la ligne d'escalier sélectionné en surbrillance'''

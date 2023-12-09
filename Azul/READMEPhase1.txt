@@ -2,10 +2,10 @@
 
 - Un mode deux, trois, quatres joueur humains
 - Un mode 1v1 contre l'ordinateur
-- La selection des tuiles dans les fabriques et le centre
+- La selection des tuiles dans les fabriques et le table
 - La selection d'une ligne de l'escalier ou du plancher
 - Les tuiles vont automatiquement dans le plancher s'il n'y a plus de place dans les lignes
-- La tuile verte va automatiquement dans le plancher du joueur ayant pioché dans le centre en premier
+- La tuile verte va automatiquement dans le plancher du joueur ayant pioché dans le table en premier
 - Selection du nombre de joueur dans un écran
 - Le système de tour (le jeton vert n'as aucune incidence pour l'instant)
 
@@ -14,7 +14,7 @@
 
 -Le programme est séparé dans trois fichiers : 
 	- Fonctions_Graphique qui contient toutes les fonctions liées à l'affichage (notamment le plateau, les fabriques, l'ecran de selection du nombre de joueur...)
-	- Fonctions_Initialisation qui contient les fonctions créant les matrices, listes représentant les fabriques, planchers, centre de table, score etc...
+	- Fonctions_Initialisation qui contient les fonctions créant les matrices, listes représentant les fabriques, planchers, table de table, score etc...
 	- Fonctions_Actualisation qui contient les fonctions qui mettent à jour les matrices et listes en fonctions des actions des joueurs. Ce fichier contient aussi la boucle principale du jeu.
 
 

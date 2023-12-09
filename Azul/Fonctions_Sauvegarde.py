@@ -101,29 +101,29 @@ def LectureFichierSauvegarde(Save):
         NbJoueur = LectureElem(Save.readline())
         ListeTypeJoueur = LectureListe(Save.readline())
         sac = LectureListe(Save.readline())
-        matF = LectureMat(Save.readline())
-        matM = LectureMatNiv3(Save.readline())
-        matP = LectureMat(Save.readline())
-        matE = LectureMatNiv3(Save.readline())
-        matT = LectureMat(Save.readline())
+        fabriques = LectureMat(Save.readline())
+        murs = LectureMatNiv3(Save.readline())
+        planchers = LectureMat(Save.readline())
+        escaliers = LectureMatNiv3(Save.readline())
+        table = LectureListe(Save.readline())
         score = LectureListe(Save.readline())
         murCoeff = LectureMatNiv3(Save.readline())
         murExemple = LectureMat(Save.readline())
         joueur_act = LectureElem(Save.readline())
         test = LectureElem(Save.readline())
-        return NbJoueur,ListeTypeJoueur,sac,matF,matM,matP,matE,matT,score,murCoeff,murExemple,joueur_act, test
+        return NbJoueur,ListeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,joueur_act, test
 
 
-def EcritureFichierSauvegarde(Save,NbJoueur,ListeTypeJoueur,sac,matF,matM,matP,matE,matT,score,murCoeff,murExemple,num_joueur,test):
+def EcritureFichierSauvegarde(Save,NbJoueur,ListeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,num_joueur,test):
     with open(Save, 'w') as Fichier:
         Fichier.write(str(NbJoueur) + '\n')
     SauvegardeListe(Save,ListeTypeJoueur)
     SauvegardeListe(Save,sac)
-    SauvegardeMat(Save,matF)
-    SauvegardeMat3Niveau(Save,matM)
-    SauvegardeMat(Save,matP)
-    SauvegardeMat3Niveau(Save,matE)
-    SauvegardeMat(Save,matT)
+    SauvegardeMat(Save,fabriques)
+    SauvegardeMat3Niveau(Save,murs)
+    SauvegardeMat(Save,planchers)
+    SauvegardeMat3Niveau(Save,escaliers)
+    SauvegardeListe(Save,table)
     SauvegardeListe(Save,score)
     SauvegardeMat3Niveau(Save,murCoeff)
     SauvegardeMat(Save,murExemple)

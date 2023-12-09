@@ -22,7 +22,7 @@ Un tour d'IA se divise en plusieurs étapes:
 		L'IA détermine le nombre de cases qu'elle doit chercher, en fonction du nombre de cases vides dans la ligne d'escalier.
 
 	- Étape 4:
-		L'IA parcourt ensuite les fabriques et le centre jusqu'à trouver un endroit contenant le bon nombre de cases de la bonne couleur.
+		L'IA parcourt ensuite les fabriques et le table jusqu'à trouver un endroit contenant le bon nombre de cases de la bonne couleur.
 
 	- Étape 5:
 		Si l'IA à trouver à un endroit les tuiles dont elle a besoin, elle les joue. Sinon elle passe à la ligne d'escalier suivante, et recommence à l'étape 2.
@@ -37,7 +37,7 @@ Un nombre négatif signifie qu'on accepte qu'il y ai ce nombre de cases vides da
 Un nombre positif signifie qu'on accepte que ce nombre de cases finisse dans le plancher (par exemple la ligne 3, avec la marge 1, sera entièrement remplie, mais une tuile ira dans le plancher)
 
 	- Étape 7:
-		Dans le cas où l'IA ne peut remplir de lignes, malgré les différentes marges d'erreurs possibles, elle cherchera dans les fabriques et dans le centre, comment placer le moins de 
+		Dans le cas où l'IA ne peut remplir de lignes, malgré les différentes marges d'erreurs possibles, elle cherchera dans les fabriques et dans le table, comment placer le moins de 
 		tuiles possibles dans le plancher.
 
 [Les choix techniques]

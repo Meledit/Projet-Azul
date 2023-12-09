@@ -41,8 +41,9 @@ def Creer_Un_Escalier():
     Escalier = []
     for i in range(5):
         Escalier.append([])
-        for j in range(5-i-1):
-            Escalier[i].append(None)
+        # for j in range(5-i-1):
+        Escalier[i].extend([None]*(5-i-1))
+            # Escalier[i].append(None)
         for k in range(i+1):
             Escalier[i].append('')
         Escalier[i].append('FlecheR')            #Désigne La fleche quand la ligne n'est pas remplie.
@@ -57,18 +58,16 @@ def InitialiserEscaliers(NbJoueurs):
 
 def InitialiserPlanchers(NbJoueurs):
     '''Créer les plancher des quatres joueurs, les planchers sont des listes contenant 'Vide' pour dessiner une case Vide'''
-    Planchers = []
+    planchers = []
     for i in range(NbJoueurs):
-        Planchers.append(['','','','','','',''])
-    return Planchers
+        planchers.append(['','','','','','',''])
+    return planchers
 
-def InitaliserCentreTable():
-    '''Initialise la matrice représentant le centre de table, cette matrice ne contient que des None, sauf la première valeur qui est la case du jeton Premier Joueur (jeton vert)'''
-    CentreTable = []
-    for i in range(4):
-        CentreTable.append([None, None, None, None, None, None, None])
-    CentreTable[0][0] = VJeton
-    return CentreTable
+def InitialiserTable():
+    '''Initialise la matrice représentant le table de table, cette matrice ne contient que des None, sauf la première valeur qui est la case du jeton Premier Joueur (jeton vert)'''
+    Table = 28*[None]
+    Table[0] = VJeton
+    return Table
 
 def InitialiserScore(NbJoueurs):
     ''' Initialise la liste contenant les scores de chaque joueur, chaque joueur à un score de 0 au début'''

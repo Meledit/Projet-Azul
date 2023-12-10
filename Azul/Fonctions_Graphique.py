@@ -24,8 +24,8 @@ def EcranChoixNbJoueur():
     dessine_3joueur()
     dessine_4joueur()
     dessine_ordi ()
-    NbJoueur, ListeTypejoueur, test = Choix_Nb_Joueur()
-    return NbJoueur, ListeTypejoueur, test
+    nbJoueurs, listeTypejoueur, test = Choix_Nb_Joueur()
+    return nbJoueurs, listeTypejoueur, test
 
 def Dessine_ecran():
     '''Dessine les rectangles contenant les personnages et les écrans d'ordinateur sur l'écran de choix de nb de joueurs'''
@@ -106,18 +106,18 @@ def Dessine_boutons():
     x = 19 * longueur // 20
     y = 4 * hauteur // 15
 
-    tablex = x +((longueur // 20) // 2)
-    tabley = y +(2 * hauteur // 15)
+    tableX = x +((longueur // 20) // 2)
+    tableY = y +(2 * hauteur // 15)
     rayon =(longueur // 20) // 3
 
     rectangle(x, y, x + longueur // 10, 2 * y, 'white', J, 2)
-    cercle(tablex, tabley, rayon, 'white', '', 4)
+    cercle(tableX, tableY, rayon, 'white', '', 4)
 
     y = 9* hauteur // 15
-    tabley = 11*hauteur // 15
+    tableY = 11*hauteur // 15
     rectangle(x, y, x + longueur // 10, y + 4 * hauteur//15, 'white', R, 2)
-    ligne(tablex-rayon, tabley-rayon, tablex+rayon, tabley+rayon, 'white', 4)
-    ligne(tablex-rayon, tabley+rayon, tablex+rayon, tabley-rayon, 'white', 4)
+    ligne(tableX-rayon, tableY-rayon, tableX+rayon, tableY+rayon, 'white', 4)
+    ligne(tableX-rayon, tableY+rayon, tableX+rayon, tableY-rayon, 'white', 4)
 
 def Dessine_table(xInit, yInit, table):
     '''Dessine le table en fonction de la matrice fournie'''
@@ -171,12 +171,12 @@ def Dessine_Un_Plancher(xInit,yInit, Lst):
             TextePoints = '-3 pts'
         texte(x, yInit, TextePoints, 'white', 'sw', "Arial", int(tailleC//3))
 
-def EcrireScore(xInit, yInit, Lst, NumJoueur):
+def EcrireScore(xInit, yInit, lst, numJoueur):
     '''Ecrit le score du joueur fournie en partant du coin supérieur gauche de coordonnées (xInit , yInit)'''
-    AffichageScore = 'Score '+ str(Lst[NumJoueur])
+    AffichageScore = 'Score '+ str(lst[numJoueur])
     texte(xInit,yInit, AffichageScore, 'white', 'nw', "Arial", int(tailleC/2))
 
-def Dessine_Une_Feuille_Joueur(xInit, yInit, murs, planchers, escaliers, LstScore, numJoueur):
+def Dessine_Une_Feuille_Joueur(xInit, yInit, murs, planchers, escaliers, lstScore, numJoueur):
     '''Dessine la feuille d'un joueur à partir des matrices et listes fournies'''
     x = xInit + 7*tailleC
     y = yInit + 7/6*tailleC + 5*tailleC
@@ -187,7 +187,7 @@ def Dessine_Une_Feuille_Joueur(xInit, yInit, murs, planchers, escaliers, LstScor
     Dessine_Un_Mur(x, yInit,murs[numJoueur])
     Dessine_Un_Plancher(xInit, y, planchers[numJoueur])
     x += 2*tailleC
-    EcrireScore(x, y, LstScore, numJoueur)
+    EcrireScore(x, y, lstScore, numJoueur)
 
 def Dessine_Le_Plateau_Entier(nbJoueur,murs, planchers, escaliers, table,fabriques, Score, numjoueur):
     '''Dessine les feuilles de tout les joueurs, la zone de fabrique et le table de table à partir des matrices et listes fournies'''
@@ -206,11 +206,11 @@ def Dessine_Le_Plateau_Entier(nbJoueur,murs, planchers, escaliers, table,fabriqu
         if numjoueur == i:
             Cadre(x - tailleC, y - tailleC, CouleurJoueur[numjoueur])
 
-def update_ecran(NbJoueur, murs, planchers, escaliers, table, fabriques, LstScore, numjoueur):
+def update_ecran(NbJoueur, murs, planchers, escaliers, table, fabriques, lstScore, numjoueur):
     '''Mets à jour le plateau entier, à partir des matrices et listes fournies'''
     efface_tout()
     Background()
-    Dessine_Le_Plateau_Entier(NbJoueur,murs, planchers, escaliers, table, fabriques, LstScore, numjoueur)
+    Dessine_Le_Plateau_Entier(NbJoueur,murs, planchers, escaliers, table, fabriques, lstScore, numjoueur)
     logo()
     mise_a_jour()
 
@@ -280,34 +280,34 @@ def SurbrillanceTable(table, tuile):
             x = xInit
             y += 7*tailleC//6
 
-def SurbrillanceEscalier(Escalier, NumLigneEscalier, NumJoueur):
+def SurbrillanceEscalier(escalier, numLigneEscalier, numJoueur):
     '''Met la ligne d'escalier sélectionné en surbrillance'''
-    if NumJoueur == 1 or NumJoueur == 3:
+    if numJoueur == 1 or numJoueur == 3:
         xInit = 6*longueur//10
     else:
         xInit = longueur//10
 
-    if NumJoueur == 0 or NumJoueur == 1:
+    if numJoueur == 0 or numJoueur == 1:
         yInit = 3*hauteur//15
     else:
         yInit = 10*hauteur//15
 
-    y = yInit + NumLigneEscalier*tailleC + NumLigneEscalier*tailleC//6
+    y = yInit + numLigneEscalier*tailleC + numLigneEscalier*tailleC//6
     FinRectangle = xInit + 5*tailleC + 4*tailleC//6
-    for i in range(len(Escalier[NumLigneEscalier])):
+    for i in range(len(escalier[numLigneEscalier])):
         x = xInit + i*tailleC + i*tailleC//6
-        if Escalier[NumLigneEscalier][i] != None:
+        if escalier[numLigneEscalier][i] != None:
             rectangle(x, y, FinRectangle, y+tailleC, '#F3FE62', '', 4)
             break
 
-def SurbrillancePlancher(NumJoueur):
+def SurbrillancePlancher(numJoueur):
     '''Met le plancher en surbrillance s'il est sélectionné'''
-    if NumJoueur == 1 or NumJoueur == 3:
+    if numJoueur == 1 or numJoueur == 3:
         x = 6*longueur//10
     else:
         x = longueur//10
 
-    if NumJoueur == 0 or NumJoueur == 1:
+    if numJoueur == 0 or numJoueur == 1:
         y = 3*hauteur//15 + 5*tailleC + 4*tailleC//6 + tailleC//2
     else:
         y = 10*hauteur//15 + 5*tailleC + 4*tailleC//6 + tailleC//2
@@ -332,7 +332,7 @@ def DebutPartie():
     bouton_continuer()
     logo()
 
-def Dessine_ecran_fin(score, NbJoueurs, condition):
+def Dessine_ecran_fin(score, nbJoueurs, condition):
     ''' Dessine l'écran de fin avec les scores et les délais entre chaque apparition de texte'''
     rectangle(0, 0, longueur, hauteur, 'black', '#323342')
     logo()
@@ -341,28 +341,28 @@ def Dessine_ecran_fin(score, NbJoueurs, condition):
 
     texte(x, y, 'Statistiques de jeu :', "white", 'nw', 'Arial', 40)
 
-    lst_g = liste_gagnant(score)
-    len_lst_g = len(lst_g)
-    prem = str(lst_g[0][0] + 1) + ' avec ' + str(lst_g[0][1]) + ' points.'
-    deux = str(lst_g[1][0] + 1) + ' avec ' + str(lst_g[1][1]) + ' points.'
-    if len_lst_g >= 3:
-        trois = str(lst_g[2][0] + 1) + ' avec ' + str(lst_g[2][1]) + ' points.'
-    if len_lst_g == 4:
-        quat = str(lst_g[3][0] + 1) + ' avec ' + str(lst_g[3][1]) + ' points.'
+    lstG = liste_gagnant(score)
+    lenLstG = len(lstG)
+    prem = str(lstG[0][0] + 1) + ' avec ' + str(lstG[0][1]) + ' points.'
+    deux = str(lstG[1][0] + 1) + ' avec ' + str(lstG[1][1]) + ' points.'
+    if lenLstG >= 3:
+        trois = str(lstG[2][0] + 1) + ' avec ' + str(lstG[2][1]) + ' points.'
+    if lenLstG == 4:
+        quat = str(lstG[3][0] + 1) + ' avec ' + str(lstG[3][1]) + ' points.'
 
 
-    texte(x, 3 * y, '   Première place, joueur numéro ' + prem, CouleurJoueur[lst_g[0][0]])
+    texte(x, 3 * y, '   Première place, joueur numéro ' + prem, CouleurJoueur[lstG[0][0]])
     sleep(1)
     mise_a_jour()
-    texte(x, y * 4, '   Seconde place, joueur numéro ' + deux, CouleurJoueur[lst_g[1][0]])
+    texte(x, y * 4, '   Seconde place, joueur numéro ' + deux, CouleurJoueur[lstG[1][0]])
     sleep(1)
     mise_a_jour()
-    if len_lst_g >= 3:
-        texte(x, y * 5, '   Troisième place, joueur numéro ' + trois, CouleurJoueur[lst_g[2][0]])
+    if lenLstG >= 3:
+        texte(x, y * 5, '   Troisième place, joueur numéro ' + trois, CouleurJoueur[lstG[2][0]])
         sleep(1)
         mise_a_jour()
-    if len_lst_g == 4:
-        texte(x, y * 6, '   Quatrième place, joueur numéro ' + quat, CouleurJoueur[lst_g[3][0]])
+    if lenLstG == 4:
+        texte(x, y * 6, '   Quatrième place, joueur numéro ' + quat, CouleurJoueur[lstG[3][0]])
         sleep(1)
         mise_a_jour()
 
@@ -389,12 +389,12 @@ def titre():
 
 def liste_gagnant(lst):
     ''' renvoie une liste trié dans l'ordre décroissant'''
-    lst_g = []
+    lstG = []
     for i in range(len(lst)):
-        lst_g.append((i,lst[i]))
+        lstG.append((i,lst[i]))
 
-    lst_g = sorted(lst_g, key=lambda personne:personne[1], reverse=True)
-    return lst_g
+    lstG = sorted(lstG, key=lambda personne:personne[1], reverse=True)
+    return lstG
 
 def animation_debut():
     '''Anime la ligne au lancement du jeu'''

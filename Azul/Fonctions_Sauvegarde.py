@@ -28,137 +28,137 @@ def SauvegardeMat3Niveau(Fichier, Mat):
         f.write('\n')
 
 def LectureListe(ligne):
-    Liste = []
+    liste = []
     tmp = ''
     for lettre in ligne:
         if lettre != '_':
             tmp += lettre
         else:
-            Liste.append(tmp)
+            liste.append(tmp)
             tmp=''
-    for i in range(len(Liste)):
-        if Liste[i].isnumeric()or '-' in Liste[i]:
-            Liste[i] = int(Liste[i])
-        elif Liste[i] =='None':
-            Liste[i] = None
-    return Liste
+    for i in range(len(liste)):
+        if liste[i].isnumeric()or '-' in liste[i]:
+            liste[i] = int(liste[i])
+        elif liste[i] =='None':
+            liste[i] = None
+    return liste
 
 def LectureMatPart1(ligne):
-    Mat=[]
+    mat=[]
     tmp = ''
     for lettre in ligne:
         if lettre == '_':
-            Mat[-1].append(tmp)
+            mat[-1].append(tmp)
             tmp = ''
         elif lettre == '|':
-            Mat.append([])
+            mat.append([])
         else:
             tmp += lettre
-    return Mat
+    return mat
 
 def LectureElem(ligne):
     tmp = ''
     for lettre in ligne:
         tmp+= lettre
-    Elem = int(tmp)
-    return Elem
+    elem = int(tmp)
+    return elem
 
 def LectureMat(ligne):
-    Mat = LectureMatPart1(ligne)
-    for i in range(len(Mat)):
-        for j in range(len(Mat[i])):
-            if Mat[i][j].isnumeric() or '-' in Mat[i][j]:
-                Mat[i][j] = int(Mat[i][j])
-            elif Mat[i][j] =='None':
-                Mat[i][j] = None
-    return Mat
+    mat = LectureMatPart1(ligne)
+    for i in range(len(mat)):
+        for j in range(len(mat[i])):
+            if mat[i][j].isnumeric() or '-' in mat[i][j]:
+                mat[i][j] = int(mat[i][j])
+            elif mat[i][j] =='None':
+                mat[i][j] = None
+    return mat
 
 def LectureMatNiv3(ligne):
-    GrandeMat=[]
+    grandeMat=[]
     tmp = ''
     for lettre in ligne:
         if lettre == ':':
-            GrandeMat.append([])
+            grandeMat.append([])
         elif lettre == '_':
-            GrandeMat[-1][-1].append(tmp)
+            grandeMat[-1][-1].append(tmp)
             tmp = ''
         elif lettre == '|':
-            GrandeMat[-1].append([])
+            grandeMat[-1].append([])
         else:
             tmp += lettre
 
-    for i in range(len(GrandeMat)):
-        for j in range(len(GrandeMat[i])):
-            for k in range(len(GrandeMat[i][j])):
-                if GrandeMat[i][j][k].isnumeric() or '-' in GrandeMat[i][j][k]:
-                    GrandeMat[i][j][k] = int(GrandeMat[i][j][k])
-                elif GrandeMat[i][j][k] =='None':
-                    GrandeMat[i][j][k] = None
-    return GrandeMat
+    for i in range(len(grandeMat)):
+        for j in range(len(grandeMat[i])):
+            for k in range(len(grandeMat[i][j])):
+                if grandeMat[i][j][k].isnumeric() or '-' in grandeMat[i][j][k]:
+                    grandeMat[i][j][k] = int(grandeMat[i][j][k])
+                elif grandeMat[i][j][k] =='None':
+                    grandeMat[i][j][k] = None
+    return grandeMat
 
-def LectureFichierSauvegarde(Save):
-    with open(Save, 'r') as Save:
-        NbJoueur = LectureElem(Save.readline())
-        ListeTypeJoueur = LectureListe(Save.readline())
-        sac = LectureListe(Save.readline())
-        fabriques = LectureMat(Save.readline())
-        murs = LectureMatNiv3(Save.readline())
-        planchers = LectureMat(Save.readline())
-        escaliers = LectureMatNiv3(Save.readline())
-        table = LectureListe(Save.readline())
-        score = LectureListe(Save.readline())
-        murCoeff = LectureMatNiv3(Save.readline())
-        murExemple = LectureMat(Save.readline())
-        joueur_act = LectureElem(Save.readline())
-        test = LectureElem(Save.readline())
-        return NbJoueur,ListeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,joueur_act, test
+def LectureFichierSauvegarde(save):
+    with open(save, 'r') as save:
+        nbJoueurs = LectureElem(save.readline())
+        listeTypeJoueur = LectureListe(save.readline())
+        sac = LectureListe(save.readline())
+        fabriques = LectureMat(save.readline())
+        murs = LectureMatNiv3(save.readline())
+        planchers = LectureMat(save.readline())
+        escaliers = LectureMatNiv3(save.readline())
+        table = LectureListe(save.readline())
+        score = LectureListe(save.readline())
+        murCoeff = LectureMatNiv3(save.readline())
+        murExemple = LectureMat(save.readline())
+        joueurAct = LectureElem(save.readline())
+        test = LectureElem(save.readline())
+        return nbJoueurs,listeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,joueurAct, test
 
 
-def EcritureFichierSauvegarde(Save,NbJoueur,ListeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,num_joueur,test):
-    with open(Save, 'w') as Fichier:
-        Fichier.write(str(NbJoueur) + '\n')
-    SauvegardeListe(Save,ListeTypeJoueur)
-    SauvegardeListe(Save,sac)
-    SauvegardeMat(Save,fabriques)
-    SauvegardeMat3Niveau(Save,murs)
-    SauvegardeMat(Save,planchers)
-    SauvegardeMat3Niveau(Save,escaliers)
-    SauvegardeListe(Save,table)
-    SauvegardeListe(Save,score)
-    SauvegardeMat3Niveau(Save,murCoeff)
-    SauvegardeMat(Save,murExemple)
-    with open(Save, 'a') as Fichier:
-        Fichier.write(str(num_joueur) + '\n')
-        Fichier.write(str(test) + '\n')
+def EcritureFichierSauvegarde(save,nbJoueur,listeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,numJoueur,test):
+    with open(save, 'w') as fichier:
+        fichier.write(str(nbJoueur) + '\n')
+    SauvegardeListe(save,listeTypeJoueur)
+    SauvegardeListe(save,sac)
+    SauvegardeMat(save,fabriques)
+    SauvegardeMat3Niveau(save,murs)
+    SauvegardeMat(save,planchers)
+    SauvegardeMat3Niveau(save,escaliers)
+    SauvegardeListe(save,table)
+    SauvegardeListe(save,score)
+    SauvegardeMat3Niveau(save,murCoeff)
+    SauvegardeMat(save,murExemple)
+    with open(save, 'a') as fichier:
+        fichier.write(str(numJoueur) + '\n')
+        fichier.write(str(test) + '\n')
 
 def TransfoMat(mat):
-    MatJoueur=[]
-    MatExemple=[]
+    matJoueur=[]
+    matExemple=[]
     for i in range(len(mat)):
-        MatJoueur.append([])
-        MatExemple.append([])
+        matJoueur.append([])
+        matExemple.append([])
         for j in range(len(mat[i])):
             if mat[i][j] == 'R':
-                MatJoueur[-1].append(RP)
-                MatExemple[-1].append(R)
+                matJoueur[-1].append(RP)
+                matExemple[-1].append(R)
             elif mat[i][j] =='Bc':
-                MatJoueur[-1].append(BcP)
-                MatExemple[-1].append(Bc)
+                matJoueur[-1].append(BcP)
+                matExemple[-1].append(Bc)
             elif mat[i][j] =='V':
-                MatJoueur[-1].append(VP)
-                MatExemple[-1].append(V)
+                matJoueur[-1].append(VP)
+                matExemple[-1].append(V)
             elif mat[i][j] =='Bl':
-                MatJoueur[-1].append(BlP)
-                MatExemple[-1].append(Bl)
+                matJoueur[-1].append(BlP)
+                matExemple[-1].append(Bl)
             elif mat[i][j] =='J':
-                MatJoueur[-1].append(JP)
-                MatExemple[-1].append(J)
-    return MatExemple,MatJoueur
+                matJoueur[-1].append(JP)
+                matExemple[-1].append(J)
+    return matExemple,matJoueur
 
-def LectureMatDepart(FichierMat):
-    with open(FichierMat, 'r') as Fichier:
-        Mat = Fichier.readline()
-        MatString = LectureMatPart1(Mat)
-        MatExemple, MatJoueur = TransfoMat(MatString)
+def LectureMatDepart(fichierMat):
+    with open(fichierMat, 'r') as fichier:
+        mat = fichier.readline()
+        matString = LectureMatPart1(mat)
+        matExemple, matJoueur = TransfoMat(matString)
 
-        return MatExemple, MatJoueur
+        return matExemple, matJoueur

@@ -7,7 +7,7 @@ from time import *
 from upemtk import *
 from math import *
 from random import randrange
-from functools import wraps
+from functools import wraps, lru_cache
 from inspect import *
 
 
@@ -15,16 +15,18 @@ from inspect import *
 def lru_cache_possible(f):
     @wraps(f)
     def decoration(*args, **kwargs):
-        # print("Appel de la fonction", str(f.__name__),":")
+        print("Appel de la fonction", str(f.__name__),":")
         arguments = signature(f).bind(*args, **kwargs).arguments
         hashable = True
         for key in arguments:
             if not arguments[key].__hash__:
+                print('\t arg pas hashable : ',key)
                 hashable = False
-        # if hashable:
-        #     print("\ttous les paramètres sont hashables, lru_cache est utilisable")
-        # else:
-        #     print("\tcertains paramètres ne sont pas hashables, lru_cache est inutilisable")
+        if hashable:
+            pass
+            # print("\ttous les paramètres sont hashables, lru_cache est utilisable")
+        else:
+            print("\tcertains paramètres ne sont pas hashables, lru_cache est inutilisable")
         r = f(*args, **kwargs)
         return r
     return decoration
@@ -82,7 +84,6 @@ def confirmer():
         if minxR < coordonee[0] < maxxR and minyR < coordonee[1] < maxyR:
             return False
 
-@lru_cache_possible
 def determiner_fabrique_selectioner(coordonee, nbJoueurs):
     ''' Renvoie le numero de la fabrique selectionée en fonction du nombre de fabriques totale et de l'endroit où a cliqué le joueur'''
     NbDeFabriques =(nbJoueurs * 2) + 1
@@ -94,6 +95,7 @@ def determiner_fabrique_selectioner(coordonee, nbJoueurs):
         return None
     elif clic_valide_table(coordonee):
         return 10
+
 
 def clic_valide_fabrique(coordonee, numFabrique, nbJoueurs):
     ''' Verifie si le clic est dans une des fabriques '''
@@ -119,15 +121,12 @@ def determiner_tuile_selectioner(coordonne, M, numFabrique, nbJoueurs):
     elif coordonne[0] > centreX and coordonne[0] < centreX + tailleC :
         x = 1
     else:
-        x=None
+        return None
     if coordonne[1] < centreY and coordonne[1] > centreY - tailleC:
         y = 0
     elif coordonne[1] > centreY and coordonne[1] < centreY + tailleC:
         y = 1
     else:
-        y=None
-
-    if x == None or y == None:
         return None
 
     if y == 0:
@@ -137,27 +136,12 @@ def determiner_tuile_selectioner(coordonne, M, numFabrique, nbJoueurs):
 
 def actualiser_fabrique(fabriques, numFabrique):
     ''' Remplit la fabrique sélectionner de None, pour que les cases ne soient pas dessiner'''
-    for i in range(len(fabriques[numFabrique])):
-        fabriques[numFabrique][i] = None
+    fabriques[numFabrique] = [None]*len(fabriques[numFabrique])
 
 def recup_clic():
     '''Récupère les coordonees du clic'''
     x, y, _ = attente_clic()
     return x, y
-
-def compter_couleur_identique(lst, tuile):
-    '''Compte le nombre de tuile de la même couleur que la tuile précédemment sélectionnée dans la fabrique'''
-    nb = 0
-    for i in range(len(lst)):
-        if lst[i] == tuile:
-            nb += 1
-    return nb
-
-def tuile_valide(tuile):
-    '''Vérifie que la tuile sélectionnée ne vaut pas None'''
-    if tuile == None:
-        return False
-    return True
 
 def clic_valide_escalier(coordonee, numJoueur):
     ''' Vérifie que le clic du joueur se trouve dans son escalier'''
@@ -201,20 +185,20 @@ def determiner_ligne_selectioner(coordonee, numJoueur):
 
 def SelectionTuilesEtFabrique(fabriques, nbJoueurs, table):
     '''Renvoie la tuile sélectionée, la fabrique où a été sélectionnée la tuile et le nombre de tuile de cette couleur dans la fabrique'''
-    fabrique = None
-    while fabrique == None:
+    numFabrique = None
+    while numFabrique == None:
         coordonee=recup_clic()
-        fabrique = determiner_fabrique_selectioner(coordonee, nbJoueurs)
-    if fabrique == 10:
+        numFabrique = determiner_fabrique_selectioner(coordonee, nbJoueurs)
+    if numFabrique == 10:
         tuile = determiner_tuile_selectioner_dans_table(coordonee, table)
         nbTuiles = table.count(tuile)
         SurbrillanceTable(table, tuile)
-        return fabrique, tuile, nbTuiles, coordonee
+        return numFabrique, tuile, nbTuiles, coordonee
     else:
-        tuile = determiner_tuile_selectioner(coordonee, fabriques, fabrique, nbJoueurs)
-        nbTuiles = compter_couleur_identique(fabriques[fabrique], tuile)
-        SurbrillanceFabrique(fabriques, fabrique, tuile)
-        return fabrique, tuile, nbTuiles, coordonee
+        tuile = determiner_tuile_selectioner(coordonee, fabriques, numFabrique, nbJoueurs)
+        nbTuiles = fabriques[numFabrique].count(tuile)
+        SurbrillanceFabrique(fabriques, numFabrique, tuile)
+        return numFabrique, tuile, nbTuiles, coordonee
 
 def SelectionLigneEscalier(joueur):
     ''' Renvoie la ligne d'escalier ou le plancher selectionné par le joueur '''
@@ -264,10 +248,6 @@ def DeroulementTour(nbJoueurs, fabriques, joueur, escalier, table, plancher, gen
         tuile = None
         while tuile == None:
             fabrique, tuile, nb_tuile, coordonee = SelectionTuilesEtFabrique(fabriques, nbJoueurs, table)
-            #FIXME Pas utile normalement
-            # while not clic_valide_table(coordonee) and not clic_valide_fabrique(coordonee, fabrique, NbJoueur) :
-            #     print('WHILE')
-            #     coordonee = recup_clic()
             if clic_valide_fabrique(coordonee, fabrique, nbJoueurs):
                 if tuile == None:
                     continue
@@ -426,9 +406,7 @@ def FabriqueVersTable(table, fabrique, tuile):
 
 def assez_de_place(nbTuiles, ligneEscalier, tuile):
     '''Renvoie True, si on peut placer toutes les tuiles sélectionnées dans la ligne d'escalier sélectionnée, et False sinon'''
-    if nbTuiles >(len(ligneEscalier) - ligneEscalier.count(None) - ligneEscalier.count(tuile) - 1):
-        return False
-    return True
+    return not(nbTuiles >(len(ligneEscalier) - ligneEscalier.count(None) - ligneEscalier.count(tuile) - 1))
 
 def actualiser_plancher(lstPlancher,tuile, tuileAPlacer):
     ''' Met les tuiles qui doivent aller dans le plancher dans ce dernier'''
@@ -455,6 +433,7 @@ def actualiser_ligne_escalier(ligneEscalier, tuile, nbTuiles):
             else:
                 ligneEscalier[-1] = 'FlecheV'
 
+@lru_cache(maxsize=None)
 def alterner_joueur(numJoueur, nbJoueurs):
     ''' Modifie le joueur jouant actuellement pour passer au joueur suivant'''
     newNumJoueur = numJoueur + 1
@@ -473,10 +452,8 @@ def Fabriques_vides(fabriques):
     return True
 
 def rotation_finie(fabriques, table):
-    ''' Renvoie True, si la rotation actuelle est finie, c'est à dire s'il n'y pas plus de tuiles dans les fabrique et dans le table'''
-    if not Fabriques_vides(fabriques) or table[0] != None:
-        return False
-    return True
+    ''' Renvoie True, si la rotation actuelle est finie, c'est à dire s'il n'y a plus de tuiles dans les fabriques et dans la table'''
+    return not(not Fabriques_vides(fabriques) or table[0] != None)
 
 def TourIA(fabriques,table,escaliers,planchers,numJoueur, genreJoueur, murs, test):
     ''' Gère le tour d'un joueur IA de manière intelligente'''
@@ -494,26 +471,26 @@ def TourIA(fabriques,table,escaliers,planchers,numJoueur, genreJoueur, murs, tes
 
 def RemplirLignes(escaliers,murCoeff, murExemple, table, planchers, numJoueur, genreJoueur, marge, temps):
     '''Remplit les lignes qui rapporte le plus de points'''
-    for ligne in range(len(escaliers[numJoueur])-1,-1,-1):
-        if escaliers[numJoueur][ligne][-2]=='':
-            couleurAPrendre, casesARemplir = CasesAChercher(ligne,numJoueur,murExemple,murCoeff, escaliers)
+    for numLigne in range(len(escaliers[numJoueur])-1,-1,-1):
+        if escaliers[numJoueur][numLigne][-2]=='':
+            couleurAPrendre, casesARemplir = CasesAChercher(numLigne,murExemple[numLigne],murCoeff[numJoueur][numLigne], escaliers[numJoueur][numLigne])
             casesARemplir = casesARemplir + marge
             if casesARemplir > 0:
                 compteur,couleur,endroit,numFabrique = RechercheCase(couleurAPrendre, casesARemplir)
                 if compteur!=None:
                     if endroit == "Table":
                         SurbrillanceTable(table,couleur)
-                        SurbrillanceEscalier(escaliers[numJoueur], ligne, numJoueur)
+                        SurbrillanceEscalier(escaliers[numJoueur], numLigne, numJoueur)
                         mise_a_jour()
                         sleep(temps)
-                        ConfirmerDeplacementDepuisTable(table, couleur, compteur, escaliers[numJoueur][ligne], planchers[numJoueur], genreJoueur)
+                        ConfirmerDeplacementDepuisTable(table, couleur, compteur, escaliers[numJoueur][numLigne], planchers[numJoueur], genreJoueur)
                         return True
                     elif endroit =="Fabriques":
                         SurbrillanceFabrique(fabriques, numFabrique, couleur)
-                        SurbrillanceEscalier(escaliers[numJoueur], ligne, numJoueur)
+                        SurbrillanceEscalier(escaliers[numJoueur], numLigne, numJoueur)
                         mise_a_jour()
                         sleep(temps)
-                        ConfirmerDeplacementDepuisFabrique(numFabrique, couleur, compteur, escaliers[numJoueur][ligne], table, planchers[numJoueur], genreJoueur)
+                        ConfirmerDeplacementDepuisFabrique(numFabrique, couleur, compteur, escaliers[numJoueur][numLigne], table, planchers[numJoueur], genreJoueur)
                         return True
     return False
 
@@ -537,16 +514,16 @@ def RecherchePourPlancher(table,planchers,fabriques,genreJoueur):
                 return 
         nbCases+=1 
 
-def CasesAChercher(numLigneEscalier,numJoueur,murExemple,murCoeff,escaliers):
+def CasesAChercher(numLigneEscalier,ligneMurExemple,ligneMurCoeff,ligneEscalier):
     '''Définit le nombre de cases à chercher et leurs couleurs'''
-    if escaliers[numJoueur][numLigneEscalier][-2-numLigneEscalier] != '':
-        couleurAPrendre = [escaliers[numJoueur][numLigneEscalier][-2-numLigneEscalier]]
+    if ligneEscalier[-2-numLigneEscalier] != '':
+        couleurAPrendre = [ligneEscalier[-2-numLigneEscalier]]
     else:
         couleurAPrendre=[]
-        for case in range(len(murCoeff[numJoueur][numLigneEscalier])):
-            if murCoeff[numJoueur][numLigneEscalier][case] == 0:
-                couleurAPrendre.append(murExemple[numLigneEscalier][case])
-    casesARemplir = escaliers[numJoueur][numLigneEscalier].count('')
+        for case in range(len(ligneMurCoeff)):
+            if ligneMurCoeff[case] == 0:
+                couleurAPrendre.append(ligneMurExemple[case])
+    casesARemplir = ligneEscalier.count('')
     return couleurAPrendre, casesARemplir
 
 def RechercheCase(LstCouleur, NbCases):
@@ -590,6 +567,7 @@ def ActualisationMatFinDeTour(murExemple, murCoeff, murs, numJoueur, ligne, tuil
             murs[numJoueur][ligne][i] = tuile
             break
 
+@lru_cache(maxsize=None)
 def case_valide(n,i,j):
     return (0 <= i <= (n - 1) and 0 <= j <= (n - 1))
 
@@ -611,16 +589,16 @@ def CalculPointsUneCase(numJoueur, score, coord, murCoeff):
         j = coord[1] + depH
         while True:
             if case_valide(n,i,j) and murCoeff[numJoueur][i][j] == 1:
-                ComptH += 1
+                comptH += 1
                 j += depH
             else:
                 break
 
     if comptH>0 and comptV >0:
-        Compteur = comptH+comptV+2
+        compteur = comptH+comptV+2
     else:
-        Compteur = comptH+comptV +1
-    score[numJoueur]+=Compteur
+        compteur = comptH+comptV +1
+    score[numJoueur]+=compteur
 
 def CalculMalus(numJoueur, planchers, score):
     for case in range(len(planchers[numJoueur])):
@@ -760,7 +738,6 @@ if __name__ == '__main__':
         condition = ConditionFinDePartie(murCoeff)
         if condition != None:
             score = BonusScore(nbJoueurs, score, murCoeff, murs)
-            update_ecran(nbJoueurs,murs,planchers,escaliers,table,fabriques,score, numJoueur)
             break
 
 ################################################################################

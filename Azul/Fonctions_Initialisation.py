@@ -5,10 +5,10 @@ from Fonctions_Graphique import *
 from time import *
 from upemtk import *
 from math import *
+from inspect import *
 
 
 ########################################################################################################
-
 def InitialiserSac():
     ''' Initialise le sac qui est une liste contenant les 100 tuiles réparties en 5 couleurs différentes'''
     sac = []
@@ -48,6 +48,7 @@ def Creer_Un_Escalier():
             escalier[i].append('')
         escalier[i].append('FlecheR')            #Désigne La fleche quand la ligne n'est pas remplie.
     return escalier
+
 
 def InitialiserEscaliers(nbJoueurs):
     '''Crée la matrice contenant les escaliers des quatre joueurs'''

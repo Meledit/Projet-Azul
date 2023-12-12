@@ -124,11 +124,8 @@ def Dessine_table(xInit, yInit, table):
     y = yInit
     x = xInit
     for i in range(len(table)):
-        if table[i] != None:
-            rectangle(x+tailleC, y+tailleC, x + 2*tailleC, y + 2*tailleC, '#212936', '#212936', 1)
-            rectangle(x, y, x + tailleC, y + tailleC, 'white', table[i], 2)   
-        else:
-            break
+        rectangle(x+tailleC, y+tailleC, x + 2*tailleC, y + 2*tailleC, '#212936', '#212936', 1)
+        rectangle(x, y, x + tailleC, y + tailleC, 'white', table[i], 2)   
         x += 7*tailleC//6
         if i%7 == 6:
             x = xInit
@@ -136,27 +133,24 @@ def Dessine_table(xInit, yInit, table):
 
 def Dessine_Un_Mur(xInit,yInit,M):
     '''Dessine un mur, en partant du coin supérieur gauche de coordonnées (xInit, yInit) et de la matrice fournie'''
-    longueurMur = len(M[0])
     for i in range(len(M)):
         y = yInit + i*tailleC + i*tailleC/6
-        for j in range(longueurMur):
+        for j in range(len(M[i])):
             x = xInit + j*tailleC + j*tailleC/6
             rectangle(x, y, x+tailleC, y+tailleC, "white", M[i][j], 2)
 
 def Dessine_Un_Escalier(xInit, yInit, M):
     '''Dessine un escalier, en partant du coin supérieur gauche de coordonnées (xInit, yInit) et de la matrice fournie'''
-    longueurEscalier = len(M[0])
     for i in range(len(M)):
         y = yInit + i*tailleC + i*tailleC/6
-        for j in range(longueurEscalier):
-            x = xInit + j*tailleC + j*tailleC/6
-            if M[i][j] != None:
-                if M[i][j] == 'FlecheR':
-                    polygone([x, y ,x + tailleC, y + tailleC/2, x, y + tailleC], '#FF3B3B', '#F95330', 2)
-                elif M[i][j] == 'FlecheV':
-                    polygone([x, y ,x + tailleC, y + tailleC/2, x, y + tailleC], '#68EA87', '#80FF9E', 2)
-                else:
-                    rectangle(x, y, x+tailleC, y+tailleC, "white", M[i][j], 2)
+        for j in range(len(M[i])):
+            x = xInit + (4-i+j)*tailleC + (4-i+j)*tailleC/6
+            if M[i][j] == 'FlecheR':
+                polygone([x, y ,x + tailleC, y + tailleC/2, x, y + tailleC], '#FF3B3B', '#F95330', 2)
+            elif M[i][j] == 'FlecheV':
+                polygone([x, y ,x + tailleC, y + tailleC/2, x, y + tailleC], '#68EA87', '#80FF9E', 2)
+            else:
+                rectangle(x, y, x+tailleC, y+tailleC, "white", M[i][j], 2)
 
 def Dessine_Un_Plancher(xInit,yInit, Lst):
     '''Dessine un plancher, en partant du coin supérieur gauche de coordonnées (xInit, yInit) et de la liste fournie'''
@@ -181,7 +175,7 @@ def Dessine_Une_Feuille_Joueur(xInit, yInit, murs, planchers, escaliers, lstScor
     x = xInit + 7*tailleC
     y = yInit + 7/6*tailleC + 5*tailleC
     dessine_ombre(x + tailleC, yInit + tailleC, murs[numJoueur])
-    dessine_ombre(xInit + tailleC, yInit + tailleC, escaliers[numJoueur])
+    dessine_ombre_escaliers(xInit + tailleC, yInit + tailleC, escaliers[numJoueur])
     dessine_ombre_P(xInit + tailleC, y + tailleC, planchers[numJoueur])
     Dessine_Un_Escalier(xInit, yInit, escaliers[numJoueur])
     Dessine_Un_Mur(x, yInit,murs[numJoueur])
@@ -224,29 +218,40 @@ def Cadre(xInit, yInit, clr):
 ######################## Ombres du plateau ########################################################
 def dessine_ombre(xInit, yInit, M):
     '''Dessine l'ombre d'une matrice'''
-    longueurMur=len(M[0])
     for i in range (len(M)):
         y = yInit + i * tailleC + i * tailleC/6
-        for j in range (longueurMur):
+        for j in range (len(M[i])):
             x = xInit + j * tailleC + j * tailleC/6
-            if M[i][j] != None:
-                if M[i][j] == 'FlecheR' or M[i][j] == 'FlecheV':
-                    polygone([x, y ,x + tailleC, y + tailleC/2, x, y + tailleC], '#212936', '#212936', 1)
+            if M[i][j] == 'FlecheR' or M[i][j] == 'FlecheV':
+                polygone([x, y ,x + tailleC, y + tailleC/2, x, y + tailleC], '#212936', '#212936', 1)
+            else:
+                if M[i][j] == '':
+                    rectangle(x, y, x + tailleC, y + tailleC, '#212936', '', 2)
                 else:
-                    if M[i][j] == '':
-                        rectangle(x, y, x + tailleC, y + tailleC, '#212936', '', 2)
-                    else:
-                        rectangle(x, y, x + tailleC, y + tailleC, '#212936', '#212936', 1)
+                    rectangle(x, y, x + tailleC, y + tailleC, '#212936', '#212936', 1)
+
+def dessine_ombre_escaliers(xInit, yInit, M):
+    '''Dessine l'ombre d'une matrice'''
+    for i in range (len(M)):
+        y = yInit + i * tailleC + i * tailleC/6
+        for j in range (len(M[i])):
+            x = xInit + (4-i+j)*tailleC + (4-i+j)*tailleC/6
+            if M[i][j] == 'FlecheR' or M[i][j] == 'FlecheV':
+                polygone([x, y ,x + tailleC, y + tailleC/2, x, y + tailleC], '#212936', '#212936', 1)
+            else:
+                if M[i][j] == '':
+                    rectangle(x, y, x + tailleC, y + tailleC, '#212936', '', 2)
+                else:
+                    rectangle(x, y, x + tailleC, y + tailleC, '#212936', '#212936', 1)
 
 def dessine_ombre_P(xInit, yInit, lst):
     '''Dessine l'ombre d'une liste'''
     for i in range (len(lst)):
         x = xInit + i * tailleC + i * tailleC/6
-        if lst[i] != None:
-            if lst[i]=='':
-                rectangle(x, yInit, x + tailleC, yInit + tailleC, '#212936', '', 2)
-            else:
-                rectangle(x, yInit, x + tailleC, yInit + tailleC, '#212936', '#212936', 1)
+        if lst[i]=='':
+            rectangle(x, yInit, x + tailleC, yInit + tailleC, '#212936', '', 2)
+        else:
+            rectangle(x, yInit, x + tailleC, yInit + tailleC, '#212936', '#212936', 1)
 ##################################################################################################
 
 ################### Surbrillance #################################################################
@@ -295,10 +300,8 @@ def SurbrillanceEscalier(escalier, numLigneEscalier, numJoueur):
     y = yInit + numLigneEscalier*tailleC + numLigneEscalier*tailleC//6
     FinRectangle = xInit + 5*tailleC + 4*tailleC//6
     for i in range(len(escalier[numLigneEscalier])):
-        x = xInit + i*tailleC + i*tailleC//6
-        if escalier[numLigneEscalier][i] != None:
-            rectangle(x, y, FinRectangle, y+tailleC, '#F3FE62', '', 4)
-            break
+        x = xInit + (5-i)*tailleC + (5-i)*tailleC//6
+    rectangle(x, y, FinRectangle, y+tailleC, '#F3FE62', '', 4)
 
 def SurbrillancePlancher(numJoueur):
     '''Met le plancher en surbrillance s'il est sélectionné'''

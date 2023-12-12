@@ -42,7 +42,7 @@ def Creer_Un_Escalier():
     for i in range(5):
         escalier.append([])
         # for j in range(5-i-1):
-        escalier[i].extend([None]*(5-i-1))
+        # escalier[i].extend([None]*(5-i-1))
             # Escalier[i].append(None)
         for k in range(i+1):
             escalier[i].append('')
@@ -66,8 +66,7 @@ def InitialiserPlanchers(nbJoueurs):
 
 def InitialiserTable():
     '''Initialise la matrice représentant le table de table, cette matrice ne contient que des None, sauf la première valeur qui est la case du jeton Premier Joueur (jeton vert)'''
-    table = 28*[None]
-    table[0] = VJeton
+    table = [VJeton]
     return table
 
 def InitialiserScore(nbJoueurs):

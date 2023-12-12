@@ -58,7 +58,7 @@ def RemplirFabrique(nbJoueurs, Sac):
     for i in range((nbJoueurs * 2) + 1):
         zoneFabriques.append([])
         if nbTuilesDansSac<4:
-            zoneFabriques[i] = [None,None,None,None]
+            zoneFabriques[i] = []
         else:
             for j in range(4):
                 couleur = randrange(0, len(Sac))
@@ -129,14 +129,17 @@ def determiner_tuile_selectioner(coordonne, M, numFabrique, nbJoueurs):
     else:
         return None
 
+    if M[numFabrique] == []:
+        return None
+
     if y == 0:
         return M[numFabrique][x + y]
     else:
         return M[numFabrique][x + y + 1]
 
 def actualiser_fabrique(fabriques, numFabrique):
-    ''' Remplit la fabrique sélectionner de None, pour que les cases ne soient pas dessiner'''
-    fabriques[numFabrique] = [None]*len(fabriques[numFabrique])
+    ''' Vide la fabrique sélectionnée, pour que les cases ne soient pas dessiner'''
+    fabriques[numFabrique] = []
 
 def recup_clic():
     '''Récupère les coordonees du clic'''
@@ -226,7 +229,7 @@ def ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nbTuiles, ligneSelection
         update_ecran(nbJoueurs, murs, planchers, escaliers, table, fabriques, score, numJoueur)
         return False
     else:
-        placeDispo =(len(ligneSelectionnee) - ligneSelectionnee.count(None) - ligneSelectionnee.count(tuile) - 1)
+        placeDispo =(len(ligneSelectionnee) - ligneSelectionnee.count(tuile) - 1)
         if placeDispo >= nbTuiles:
             tuileAPlaceDansEscalier =  nbTuiles
         else:
@@ -300,7 +303,7 @@ def ConfirmerDeplacementDepuisTable(table, tuile, nbTuiles, ligneSelectionnee, p
             tuileAPlacerDansPlancher = 1
             actualiser_plancher(plancher,tuile, tuileAPlacerDansPlancher)
         else:
-            placeDispo =(len(ligneSelectionnee) - ligneSelectionnee.count(None) - ligneSelectionnee.count(tuile) - 1)
+            placeDispo =(len(ligneSelectionnee) - ligneSelectionnee.count(tuile) - 1)
             if placeDispo >= nbTuiles:
                 tuileAPlaceDansEscalier =  nbTuiles
             else:
@@ -320,20 +323,17 @@ def ConfirmerDeplacementDepuisTable(table, tuile, nbTuiles, ligneSelectionnee, p
         return True
 
 def actualiser_table(table, tuile):
-    ''' Met à jour la matrice Table, en retirant les tuiles sélectionnées par le joueur pour les remplacer par des None, puis trie la matrice afin de mettre les None en fin de matrice '''
-    for i in range(len(table)):
-        if table[i] == tuile:
-            table[i] = None
-    nbDeNone = table.count(None)
-    for i in range(nbDeNone):
-        table.remove(None)
+    ''' Met à jour la matrice Table, en retirant les tuiles sélectionnées par le joueur, puis trie la matrice afin de mettre les None en fin de matrice '''
+
+    nbDeTuile = table.count(tuile)
+    for i in range(nbDeTuile):
+        table.remove(tuile)
     table.sort()
-    table.extend([None]*nbDeNone)
 
 def JetonPremierJoueurVersPlancher(table, plancher):
     ''' Envoie le jeton vert premier joueur, vers le plancher du joueur qui a pioché dans le table en premier'''
     if table[0] == VJeton:
-        table[0] = None
+        table.remove(VJeton)
 
     for m in range(len(plancher)):
         if plancher[m] == '':
@@ -375,6 +375,8 @@ def determiner_tuile_selectioner_dans_table(coordonne, table):
         if y <= yTuile:
             i = m
             break
+    if i*7+j > len(table)-1:
+        return None
     return table[i*7+j]
 
 def compter_couleur_identique_matrice(mat, tuile):
@@ -391,7 +393,7 @@ def Ligne_Escalier_Valide(tuile, ligneEscalier):
     if '' not in ligneEscalier:
         return False
     for i in range(len(ligneEscalier)):
-        if ligneEscalier[i] not in [None, tuile, '', 'FlecheR', 'FlecheV']:
+        if ligneEscalier[i] not in [None, tuile, '', 'FlecheR', 'FlecheV']: #FIXME None pas utile ?
             return False
     return True
 
@@ -400,13 +402,11 @@ def FabriqueVersTable(table, fabrique, tuile):
     j = 0
     for i in range(len(fabrique)):
         if fabrique[i] != tuile:
-            while table[j] != None:
-                j+=1
-            table[j] = fabrique[i]
+            table.append(fabrique[i])
 
 def assez_de_place(nbTuiles, ligneEscalier, tuile):
     '''Renvoie True, si on peut placer toutes les tuiles sélectionnées dans la ligne d'escalier sélectionnée, et False sinon'''
-    return not(nbTuiles >(len(ligneEscalier) - ligneEscalier.count(None) - ligneEscalier.count(tuile) - 1))
+    return not(nbTuiles >(len(ligneEscalier) - ligneEscalier.count(tuile) - 1))
 
 def actualiser_plancher(lstPlancher,tuile, tuileAPlacer):
     ''' Met les tuiles qui doivent aller dans le plancher dans ce dernier'''
@@ -421,12 +421,12 @@ def actualiser_ligne_escalier(ligneEscalier, tuile, nbTuiles):
     longueurLigneEscalier = len(ligneEscalier)
     for i in range(nbTuiles):
         for j in range(longueurLigneEscalier):
-            if ligneEscalier[j]  != None and ligneEscalier[j] != 'FlecheR' and ligneEscalier[j]  != 'FlecheV' and ligneEscalier[j] not in CouleurTuile and ligneEscalier[j] != VJeton :
+            if ligneEscalier[j] != 'FlecheR' and ligneEscalier[j]  != 'FlecheV' and ligneEscalier[j] not in CouleurTuile and ligneEscalier[j] != VJeton :
                 ligneEscalier[j] = tuile
                 break
 
 
-    if longueurLigneEscalier == 6:
+    if longueurLigneEscalier != 7:
         if '' not in ligneEscalier:
             if ligneEscalier[-1] == 'FlecheV':
                 ligneEscalier[-1] = 'FlecheR'
@@ -446,14 +446,13 @@ def Fabriques_vides(fabriques):
     n = len(fabriques)
     p = len(fabriques[0])
     for i in range(n):
-        for j in range(p):
-            if fabriques[i][j] != None:
-                return False
+        if fabriques[i] != []:
+            return False
     return True
 
 def rotation_finie(fabriques, table):
     ''' Renvoie True, si la rotation actuelle est finie, c'est à dire s'il n'y a plus de tuiles dans les fabriques et dans la table'''
-    return not(not Fabriques_vides(fabriques) or table[0] != None)
+    return not(not Fabriques_vides(fabriques) or table != [])
 
 def TourIA(fabriques,table,escaliers,planchers,numJoueur, genreJoueur, murs, test):
     ''' Gère le tour d'un joueur IA de manière intelligente'''
@@ -613,11 +612,10 @@ def CalculMalus(numJoueur, planchers, score):
             break
 
 def VideEscalier(numJoueur, escaliers):
-    n = len(escaliers[numJoueur][0])
     for ligne in range(len(escaliers[numJoueur])):
         if escaliers[numJoueur][ligne][-2] != '':
             tuile = escaliers[numJoueur][ligne][-2]
-            for i in range(n):
+            for i in range(len(escaliers[numJoueur][ligne])):
                 if escaliers[numJoueur][ligne][i] == tuile:
                     escaliers[numJoueur][ligne][i] =''
                 escaliers[numJoueur][ligne][-1] = 'FlecheR'
@@ -732,7 +730,7 @@ if __name__ == '__main__':
                 sac=InitialiserSac()
             fabriques = RemplirFabrique(nbJoueurs, sac)
             numJoueur = DeterminerPremierJoueur(planchers)
-            table[0] = VJeton
+            table.append(VJeton)
             planchers = FinDeRotation(nbJoueurs, escaliers, murs, murCoeff, murExemple, score, planchers)
         update_ecran(nbJoueurs,murs,planchers,escaliers,table,fabriques,score, numJoueur)
         condition = ConditionFinDePartie(murCoeff)

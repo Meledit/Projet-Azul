@@ -8,7 +8,7 @@ from math import *
 
 
 ########################################################################################################
-def quadrillage():
+def Quadrillage():
     '''Fonction temporaire, permettant de repérer la position de chaque élément en s'adaptant à la taille de la fenêtre'''
     for i in range(11):
         ligne(i*longueur//10,0, i*longueur//10, hauteur, 'silver', 2)
@@ -19,22 +19,22 @@ def quadrillage():
 ################### Ecran Nb Joueur ###################################################################
 def EcranChoixNbJoueur():
     ''' Affiche l'écran de selection du nombre de joueur ( les rectangles à gauche désignent les modes de jeu contenant uniquement des joueurs humains, et le rectangle à droite le mode Humain vs Ordi)'''
-    Dessine_ecran()
-    dessine_2joueur()
-    dessine_3joueur()
-    dessine_4joueur()
-    dessine_ordi ()
-    nbJoueurs, listeTypejoueur, test = Choix_Nb_Joueur()
+    DessinerEcran()
+    Dessiner2Joueurs()
+    Dessiner3Joueurs()
+    Dessiner4Joueurs()
+    DessinerOrdi()
+    nbJoueurs, listeTypejoueur, test = ChoixNbJoueurs()
     return nbJoueurs, listeTypejoueur, test
 
-def Dessine_ecran():
+def DessinerEcran():
     '''Dessine les rectangles contenant les personnages et les écrans d'ordinateur sur l'écran de choix de nb de joueurs'''
     for i in range (3):
         y = i * hauteur // 3
         rectangle (0, y, longueur, y + hauteur //3, 'white', '#323342', 4)
     rectangle ((6 * longueur // 9), 0, longueur, hauteur, 'white', '#323342', 4)
 
-def dessine_ordi():
+def DessinerOrdi():
     '''Desssine un pictogramme d'écran d'ordinateur'''
     x = (13 * longueur // 18)
     y = (hauteur // 2)
@@ -43,28 +43,28 @@ def dessine_ordi():
     rectangle (x + 4 * (longueur // 9) // 8, y + hauteur // 10, x + 13 * ((longueur // 9) // 8), y + hauteur // 9, 'white', 'white')
 
 
-def bonhomme (xInit, yInit, rayon, clr):
+def Bonhomme(xInit, yInit, rayon, clr):
     '''Dessine un pictogramme de bonhomme au point d'encrage xInit, yInit le milieu de son corps'''
     rectangle (xInit - rayon, yInit - 1.5 * rayon, xInit + rayon, yInit + 1.5 * rayon, clr, '#323342', 4)
     cercle (xInit, yInit - 2.5 * rayon, 0.85 * rayon, clr, '#323342', 4 )
     ligne (xInit - rayon // 4, yInit - 2.8 * rayon, xInit - rayon // 4, yInit - 2.3 * rayon, clr, 4)
     ligne (xInit + rayon // 4, yInit - 2.8 * rayon, xInit + rayon // 4, yInit - 2.3 * rayon, clr, 4)
 
-def dessine_2joueur():
+def Dessiner2Joueurs():
     '''Dessine deux pictogrammes de personnages'''
-    bonhomme ((5 * longueur // 18), (2 * hauteur // 9), (longueur // 9) // 4, '#FF4040')
-    bonhomme ((7 * longueur // 18), (2 * hauteur // 9), (longueur // 9) // 4, '#4C5EFF')
+    Bonhomme((5 * longueur // 18), (2 * hauteur // 9), (longueur // 9) // 4, '#FF4040')
+    Bonhomme((7 * longueur // 18), (2 * hauteur // 9), (longueur // 9) // 4, '#4C5EFF')
 
-def dessine_3joueur():
+def Dessiner3Joueurs():
     '''Dessine trois pictogrammes de personnages'''
-    bonhomme ((2 * longueur // 9), (5 * hauteur // 9), (longueur // 9) // 4, '#FF4040')
-    bonhomme ((3 * longueur // 9), (5 * hauteur // 9), (longueur // 9) // 4, '#4C5EFF')
-    bonhomme ((4 * longueur // 9), (5 * hauteur // 9), (longueur // 9) // 4, '#FFCC43')
+    Bonhomme((2 * longueur // 9), (5 * hauteur // 9), (longueur // 9) // 4, '#FF4040')
+    Bonhomme((3 * longueur // 9), (5 * hauteur // 9), (longueur // 9) // 4, '#4C5EFF')
+    Bonhomme((4 * longueur // 9), (5 * hauteur // 9), (longueur // 9) // 4, '#FFCC43')
 
-def dessine_4joueur():
+def Dessiner4Joueurs():
     '''Dessine quatre pictogrammes de personnages'''
     for i in range(4):
-        bonhomme (((3 + 2 * i) * longueur // 18), (8 * hauteur // 9), (longueur // 9) // 4, CouleurJoueur[i])
+        Bonhomme(((3 + 2 * i) * longueur // 18), (8 * hauteur // 9), (longueur // 9) // 4, CouleurJoueur[i])
 ####################################################################################################
 
 
@@ -74,7 +74,7 @@ def Background():
     rectangle(0, 0, longueur, 2*hauteur//15, 'black', '#564267')
     rectangle(0, 2*hauteur//15, longueur, hauteur, 'black', '#323342')
 
-def Dessine_une_fabrique(lst, xInit, yInit):
+def DessinerUneFabrique(lst, xInit, yInit):
     '''Dessine les quatres tuiles appartenant à une fabrique'''
     y = yInit-tailleC
     for i in range(len(lst) // 2):
@@ -85,11 +85,11 @@ def Dessine_une_fabrique(lst, xInit, yInit):
             rectangle(x, y+tailleC, x + tailleC, y + 2*tailleC, 'black', lst[2 + i], 2)
             
 
-def Dessine_zone_fabrique():
+def DessinerZoneFabrique():
     '''Dessine la ligne pour limiter la zone des fabriques'''
     ligne(0, 2 *(hauteur // 15), longueur, 2 *(hauteur // 15), 'white', 2)
 
-def Dessine_fabriques(M):
+def DessinerFabriques(M):
     '''Dessine la zone des fabriques entièrement (tuile, cercle, ligne)'''
     n = len(M)
     rayon = sqrt((tailleC ** 2) * 2) + 5
@@ -98,10 +98,10 @@ def Dessine_fabriques(M):
     for i in range(n):
         x =(xInit // 4) +(i * xInit)
         cercle(x + tailleC, y , rayon, 'white', '#323342', 2)
-        Dessine_une_fabrique(M[i], x, y)
-    Dessine_zone_fabrique()
+        DessinerUneFabrique(M[i], x, y)
+    DessinerZoneFabrique()
 
-def Dessine_boutons():
+def DessinerBoutons():
     '''Dessine les boutons confirmer et annuler'''
     x = 19 * longueur // 20
     y = 4 * hauteur // 15
@@ -119,7 +119,7 @@ def Dessine_boutons():
     ligne(tableX-rayon, tableY-rayon, tableX+rayon, tableY+rayon, 'white', 4)
     ligne(tableX-rayon, tableY+rayon, tableX+rayon, tableY-rayon, 'white', 4)
 
-def Dessine_table(xInit, yInit, table):
+def DessinerTable(xInit, yInit, table):
     '''Dessine le table en fonction de la matrice fournie'''
     y = yInit
     x = xInit
@@ -131,7 +131,7 @@ def Dessine_table(xInit, yInit, table):
             x = xInit
             y += 7*tailleC//6
 
-def Dessine_Un_Mur(xInit,yInit,M):
+def DessinerUnMur(xInit,yInit,M):
     '''Dessine un mur, en partant du coin supérieur gauche de coordonnées (xInit, yInit) et de la matrice fournie'''
     for i in range(len(M)):
         y = yInit + i*tailleC + i*tailleC/6
@@ -139,7 +139,7 @@ def Dessine_Un_Mur(xInit,yInit,M):
             x = xInit + j*tailleC + j*tailleC/6
             rectangle(x, y, x+tailleC, y+tailleC, "white", M[i][j], 2)
 
-def Dessine_Un_Escalier(xInit, yInit, M):
+def DessinerUnEscalier(xInit, yInit, M):
     '''Dessine un escalier, en partant du coin supérieur gauche de coordonnées (xInit, yInit) et de la matrice fournie'''
     for i in range(len(M)):
         y = yInit + i*tailleC + i*tailleC/6
@@ -152,7 +152,7 @@ def Dessine_Un_Escalier(xInit, yInit, M):
             else:
                 rectangle(x, y, x+tailleC, y+tailleC, "white", M[i][j], 2)
 
-def Dessine_Un_Plancher(xInit,yInit, Lst):
+def DessinerUnPlancher(xInit,yInit, Lst):
     '''Dessine un plancher, en partant du coin supérieur gauche de coordonnées (xInit, yInit) et de la liste fournie'''
     for i in range(len(Lst)):
         x = xInit + i*tailleC + i*tailleC/6
@@ -170,23 +170,23 @@ def EcrireScore(xInit, yInit, lst, numJoueur):
     AffichageScore = 'Score '+ str(lst[numJoueur])
     texte(xInit,yInit, AffichageScore, 'white', 'nw', "Arial", int(tailleC/2))
 
-def Dessine_Une_Feuille_Joueur(xInit, yInit, murs, planchers, escaliers, lstScore, numJoueur):
+def DessinerUneFeuilleJoueur(xInit, yInit, murs, planchers, escaliers, lstScore, numJoueur):
     '''Dessine la feuille d'un joueur à partir des matrices et listes fournies'''
     x = xInit + 7*tailleC
     y = yInit + 7/6*tailleC + 5*tailleC
-    dessine_ombre(x + tailleC, yInit + tailleC, murs[numJoueur])
-    dessine_ombre_escaliers(xInit + tailleC, yInit + tailleC, escaliers[numJoueur])
-    dessine_ombre_P(xInit + tailleC, y + tailleC, planchers[numJoueur])
-    Dessine_Un_Escalier(xInit, yInit, escaliers[numJoueur])
-    Dessine_Un_Mur(x, yInit,murs[numJoueur])
-    Dessine_Un_Plancher(xInit, y, planchers[numJoueur])
+    DessinerOmbre(x + tailleC, yInit + tailleC, murs[numJoueur])
+    DessinerOmbreEscaliers(xInit + tailleC, yInit + tailleC, escaliers[numJoueur])
+    DessinerOmbrePlancher(xInit + tailleC, y + tailleC, planchers[numJoueur])
+    DessinerUnEscalier(xInit, yInit, escaliers[numJoueur])
+    DessinerUnMur(x, yInit,murs[numJoueur])
+    DessinerUnPlancher(xInit, y, planchers[numJoueur])
     x += 2*tailleC
     EcrireScore(x, y, lstScore, numJoueur)
 
-def Dessine_Le_Plateau_Entier(nbJoueur,murs, planchers, escaliers, table,fabriques, Score, numjoueur):
+def DessinerLePlateauEntier(nbJoueur,murs, planchers, escaliers, table,fabriques, Score, numjoueur):
     '''Dessine les feuilles de tout les joueurs, la zone de fabrique et le table de table à partir des matrices et listes fournies'''
-    Dessine_fabriques(fabriques)
-    Dessine_table(4 * longueur//10, 7 * hauteur//15, table)
+    DessinerFabriques(fabriques)
+    DessinerTable(4 * longueur//10, 7 * hauteur//15, table)
     for i in range(nbJoueur):
         if i%2 == 0:
             x = longueur//10
@@ -196,16 +196,16 @@ def Dessine_Le_Plateau_Entier(nbJoueur,murs, planchers, escaliers, table,fabriqu
             y = 3*hauteur//15
         else:
             y = 10*hauteur//15
-        Dessine_Une_Feuille_Joueur(x,y,murs, planchers, escaliers, Score, i)
+        DessinerUneFeuilleJoueur(x,y,murs, planchers, escaliers, Score, i)
         if numjoueur == i:
             Cadre(x - tailleC, y - tailleC, CouleurJoueur[numjoueur])
 
-def update_ecran(NbJoueur, murs, planchers, escaliers, table, fabriques, lstScore, numjoueur):
+def UpdateEcran(NbJoueur, murs, planchers, escaliers, table, fabriques, lstScore, numjoueur):
     '''Mets à jour le plateau entier, à partir des matrices et listes fournies'''
     efface_tout()
     Background()
-    Dessine_Le_Plateau_Entier(NbJoueur,murs, planchers, escaliers, table, fabriques, lstScore, numjoueur)
-    logo()
+    DessinerLePlateauEntier(NbJoueur,murs, planchers, escaliers, table, fabriques, lstScore, numjoueur)
+    Logo()
     mise_a_jour()
 
 def Cadre(xInit, yInit, clr):
@@ -216,7 +216,7 @@ def Cadre(xInit, yInit, clr):
 
 
 ######################## Ombres du plateau ########################################################
-def dessine_ombre(xInit, yInit, M):
+def DessinerOmbre(xInit, yInit, M):
     '''Dessine l'ombre d'une matrice'''
     for i in range (len(M)):
         y = yInit + i * tailleC + i * tailleC/6
@@ -230,7 +230,7 @@ def dessine_ombre(xInit, yInit, M):
                 else:
                     rectangle(x, y, x + tailleC, y + tailleC, '#212936', '#212936', 1)
 
-def dessine_ombre_escaliers(xInit, yInit, M):
+def DessinerOmbreEscaliers(xInit, yInit, M):
     '''Dessine l'ombre d'une matrice'''
     for i in range (len(M)):
         y = yInit + i * tailleC + i * tailleC/6
@@ -244,7 +244,7 @@ def dessine_ombre_escaliers(xInit, yInit, M):
                 else:
                     rectangle(x, y, x + tailleC, y + tailleC, '#212936', '#212936', 1)
 
-def dessine_ombre_P(xInit, yInit, lst):
+def DessinerOmbrePlancher(xInit, yInit, lst):
     '''Dessine l'ombre d'une liste'''
     for i in range (len(lst)):
         x = xInit + i * tailleC + i * tailleC/6
@@ -316,35 +316,35 @@ def SurbrillancePlancher(numJoueur):
         y = 10*hauteur//15 + 5*tailleC + 4*tailleC//6 + tailleC//2
     rectangle(x, y, x+8*tailleC, y+tailleC, '#F3FE62', '', 4)
 
-def bouton_new():
+def BoutonNew():
     rectangle(longueur//4, 2*hauteur//6, 3*longueur//4, 3*hauteur//6, '#564267','#564267')
     texte(longueur//2, 2.5*hauteur//6 ,"Nouvelle Partie", 'white','center' , "arial", longueur//40)
 
-def bouton_continuer():
+def BoutonContinuer():
     rectangle(longueur//4, 4*hauteur//6, 3*longueur//4, 5*hauteur//6, '#564267','#564267')
     texte(longueur//2, 4.5*hauteur//6 ,"Continuer", 'white','center' , "arial", longueur//40)
 
 
 def DebutPartie():
     '''Dessine et anime l'ecran de debut'''
-    animation_debut()
-    titre()
-    bonhomme(3 * longueur // 25, 4 *  hauteur // 6, (2.5 * tailleC), R)
-    bonhomme(22 * longueur // 25, 4 *  hauteur // 6, (2.5 * tailleC), J)
-    bouton_new()
-    bouton_continuer()
-    logo()
+    AnimationDebut()
+    Titre()
+    Bonhomme(3 * longueur // 25, 4 *  hauteur // 6, (2.5 * tailleC), R)
+    Bonhomme(22 * longueur // 25, 4 *  hauteur // 6, (2.5 * tailleC), J)
+    BoutonNew()
+    BoutonContinuer()
+    Logo()
 
-def Dessine_ecran_fin(score, nbJoueurs, condition):
+def DessinerEcranFin(score, nbJoueurs, condition):
     ''' Dessine l'écran de fin avec les scores et les délais entre chaque apparition de texte'''
     rectangle(0, 0, longueur, hauteur, 'black', '#323342')
-    logo()
+    Logo()
     y = hauteur // 12
     x = longueur // 50
 
     texte(x, y, 'Statistiques de jeu :', "white", 'nw', 'Arial', 40)
 
-    lstG = liste_gagnant(score)
+    lstG = ListeGagnant(score)
     lenLstG = len(lstG)
     prem = str(lstG[0][0] + 1) + ' avec ' + str(lstG[0][1]) + ' points.'
     deux = str(lstG[1][0] + 1) + ' avec ' + str(lstG[1][1]) + ' points.'
@@ -377,20 +377,20 @@ def Dessine_ecran_fin(score, nbJoueurs, condition):
     sleep(1)
     mise_a_jour()
 
-def logo():
+def Logo():
     '''Dessine le logo du jeu'''
     y = hauteur // 12
     x = longueur // 50
     for i in range(4):
-        bonhomme ((i + 3) * (x // 3), (y // 3) * 35, (longueur // 20) // 4, CouleurJoueur[i])
+        Bonhomme((i + 3) * (x // 3), (y // 3) * 35, (longueur // 20) // 4, CouleurJoueur[i])
 
-def titre():
+def Titre():
     '''Dessine le titre du jeu et la ligne en dessous'''
     rectangle(0, 0, longueur, hauteur, 'black', '#323342')
     texte(longueur//2, hauteur//6 ,"Azul : The game", 'white','center' , "arial", longueur//30)
     ligne(0,  3 * hauteur//12, longueur,  3 * hauteur//12, "white", 3)
 
-def liste_gagnant(lst):
+def ListeGagnant(lst):
     ''' renvoie une liste trié dans l'ordre décroissant'''
     lstG = []
     for i in range(len(lst)):
@@ -399,7 +399,7 @@ def liste_gagnant(lst):
     lstG = sorted(lstG, key=lambda personne:personne[1], reverse=True)
     return lstG
 
-def animation_debut():
+def AnimationDebut():
     '''Anime la ligne au lancement du jeu'''
     rectangle(0, 0, longueur, hauteur, '#323342', '#323342')
     texte(longueur//2, hauteur//6 ,"Azul : The game", 'white','center', "arial", longueur//30)

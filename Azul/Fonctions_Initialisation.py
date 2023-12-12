@@ -18,11 +18,11 @@ def InitialiserSac():
         sac.append(couleur[i%nbCouleurs])
     return sac
 
-def copie(T):
+def Copie(T):
     if type(T)==list:
         M = []
         for elem in T:
-            M.append(copie(elem))
+            M.append(Copie(elem))
         return M
     else:
         M=T
@@ -32,18 +32,15 @@ def InitialiserMurs(nbJoueurs, murJoueur):
     '''Crée la matrice contenant les murs des quatre joueurs'''
     murs = []
     for i in range(nbJoueurs):
-        nouvMur = copie(murJoueur)
+        nouvMur = Copie(murJoueur)
         murs.append(nouvMur)
     return murs
 
-def Creer_Un_Escalier():
+def CreerUnEscalier():
     '''Initialise l'escalier d'un joueur, comme étant une matrice avec des listes contenant None pour ne pas dessiner la case, et vide '' pour une case vide'''
     escalier = []
     for i in range(5):
         escalier.append([])
-        # for j in range(5-i-1):
-        # escalier[i].extend([None]*(5-i-1))
-            # Escalier[i].append(None)
         for k in range(i+1):
             escalier[i].append('')
         escalier[i].append('FlecheR')            #Désigne La fleche quand la ligne n'est pas remplie.
@@ -54,7 +51,7 @@ def InitialiserEscaliers(nbJoueurs):
     '''Crée la matrice contenant les escaliers des quatre joueurs'''
     escaliers = []
     for i in range(nbJoueurs):
-        escaliers.append(Creer_Un_Escalier())
+        escaliers.append(CreerUnEscalier())
     return escaliers
 
 def InitialiserPlanchers(nbJoueurs):

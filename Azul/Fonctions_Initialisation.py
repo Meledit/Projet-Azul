@@ -72,11 +72,3 @@ def InitialiserScore(nbJoueurs):
     for i in range(nbJoueurs):
         Lst.append(0)
     return Lst
-
-def InitialiserCoeffMur(nbJoueurs):
-    matCM=[]
-    for i in range(nbJoueurs):
-        matCM.append([])
-        for j in range(5):
-            matCM[i].append([0,0,0,0,0])
-    return matCM

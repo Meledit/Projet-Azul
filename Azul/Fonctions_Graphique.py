@@ -137,7 +137,7 @@ def DessinerUnMur(xInit,yInit,M):
         y = yInit + i*tailleC + i*tailleC/6
         for j in range(len(M[i])):
             x = xInit + j*tailleC + j*tailleC/6
-            rectangle(x, y, x+tailleC, y+tailleC, "white", M[i][j], 2)
+            rectangle(x, y, x+tailleC, y+tailleC, "white", M[i][j], 2) 
 
 def DessinerUnEscalier(xInit, yInit, M):
     '''Dessine un escalier, en partant du coin supérieur gauche de coordonnées (xInit, yInit) et de la matrice fournie'''

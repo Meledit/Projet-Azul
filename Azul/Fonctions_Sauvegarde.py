@@ -107,14 +107,13 @@ def LectureFichierSauvegarde(save):
         escaliers = LectureMatNiv3(save.readline())
         table = LectureListe(save.readline())
         score = LectureListe(save.readline())
-        murCoeff = LectureMatNiv3(save.readline())
         murExemple = LectureMat(save.readline())
         joueurAct = LectureElem(save.readline())
         test = LectureElem(save.readline())
-        return nbJoueurs,listeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,joueurAct, test
+        return nbJoueurs,listeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murExemple,joueurAct, test
 
 
-def EcritureFichierSauvegarde(save,nbJoueur,listeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,numJoueur,test):
+def EcritureFichierSauvegarde(save,nbJoueur,listeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murExemple,numJoueur,test):
     with open(save, 'w') as fichier:
         fichier.write(str(nbJoueur) + '\n')
     SauvegardeListe(save,listeTypeJoueur)
@@ -125,7 +124,6 @@ def EcritureFichierSauvegarde(save,nbJoueur,listeTypeJoueur,sac,fabriques,murs,p
     SauvegardeMat3Niveau(save,escaliers)
     SauvegardeListe(save,table)
     SauvegardeListe(save,score)
-    SauvegardeMat3Niveau(save,murCoeff)
     SauvegardeMat(save,murExemple)
     with open(save, 'a') as fichier:
         fichier.write(str(numJoueur) + '\n')

@@ -21,6 +21,17 @@ CouleurTuile = [R, Bl, V, Bc, J]
 CouleurJoueur = [R, Bl, J, V]
 Vide = ""
 
+#dico
+
+dicoCouleurs = {
+    "R" : (RP, R),
+    "Bl" : (BlP, Bl),
+    "Bc" : (BcP, Bc),
+    "V" : (VP, V),
+    "J" : (JP, J),
+}
+
+
 HautCase =  (4*(hauteur//15)) // (43/6)           #38/3 et 43/6 correspond au nb de case à rentrer avec les espaces
 LongCase = (3*(longueur//10)) // (38/3)
 if HautCase <= LongCase:

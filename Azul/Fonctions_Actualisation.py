@@ -447,21 +447,21 @@ def TourIA(fabriques,table,escaliers,planchers,numJoueur, genreJoueur, murs, tes
     ''' Gère le tour d'un joueur IA de manière intelligente'''
     temps = 2.5
     if test == 1:
-        temps = 0.5
+        temps = 0
     lstMarge=[0,-1,-2,1,2,-3,-4,3,4]
     for marge in lstMarge:
-        tourFini = RemplirLignes(escaliers, murCoeff, murExemple, table, planchers, numJoueur, genreJoueur, marge, temps)
+        tourFini = RemplirLignes(escaliers, murs, murExemple, table, planchers, numJoueur, genreJoueur, marge, temps)
         if tourFini:
             break
     if not tourFini:
         RecherchePourPlancher(table,planchers,fabriques,genreJoueur)
     UpdateEcran(nbJoueurs, murs, planchers, escaliers, table, fabriques, score, numJoueur)
 
-def RemplirLignes(escaliers,murCoeff, murExemple, table, planchers, numJoueur, genreJoueur, marge, temps):
+def RemplirLignes(escaliers,mursJoueur, murExemple, table, planchers, numJoueur, genreJoueur, marge, temps):
     '''Remplit les lignes qui rapporte le plus de points'''
     for numLigne in range(len(escaliers[numJoueur])-1,-1,-1):
         if escaliers[numJoueur][numLigne][-2]=='':
-            couleurAPrendre, casesARemplir = CasesAChercher(numLigne,murExemple[numLigne],murCoeff[numJoueur][numLigne], escaliers[numJoueur][numLigne])
+            couleurAPrendre, casesARemplir = CasesAChercher(numLigne,murExemple[numLigne],mursJoueur[numJoueur][numLigne], escaliers[numJoueur][numLigne])
             casesARemplir = casesARemplir + marge
             if casesARemplir > 0:
                 compteur,couleur,endroit,numFabrique = RechercheCase(couleurAPrendre, casesARemplir)
@@ -502,14 +502,14 @@ def RecherchePourPlancher(table,planchers,fabriques,genreJoueur):
                 return 
         nbCases+=1 
 
-def CasesAChercher(numLigneEscalier,ligneMurExemple,ligneMurCoeff,ligneEscalier):
+def CasesAChercher(numLigneEscalier,ligneMurExemple,ligneMurJoueur,ligneEscalier):
     '''Définit le nombre de cases à chercher et leurs couleurs'''
     if ligneEscalier[-2-numLigneEscalier] != '':
         couleurAPrendre = [ligneEscalier[-2-numLigneEscalier]]
     else:
         couleurAPrendre=[]
-        for case in range(len(ligneMurCoeff)):
-            if ligneMurCoeff[case] == 0:
+        for case in range(len(ligneMurJoueur)):
+            if ligneMurJoueur[case] != ligneMurExemple[case]:
                 couleurAPrendre.append(ligneMurExemple[case])
     casesARemplir = ligneEscalier.count('')
     return couleurAPrendre, casesARemplir
@@ -534,24 +534,23 @@ def DeterminerPremierJoueur(planchers):
         if VJeton in planchers[i]:
             return i
 
-def FinDeRotation(nbJoueurs, escaliers, murs, murCoeff, murExemple, score, planchers):
+def FinDeRotation(nbJoueurs, escaliers, murs, murExemple, score, planchers):
     for numjoueur in range(nbJoueurs):
-        ExaminerLigne(numjoueur,escaliers,murs,murCoeff,murExemple)
+        ExaminerLigne(numjoueur,escaliers,murs,murExemple)
         VideEscalier(numjoueur,escaliers)
         CalculMalus(numjoueur, planchers, score)
     return InitialiserPlanchers(nbJoueurs)
 
-def ExaminerLigne(numJoueur, escaliers, murs, murCoeff, murExemple):
+def ExaminerLigne(numJoueur, escaliers, murs, murExemple):
     for ligne in range(len(escaliers[numJoueur])):
         if escaliers[numJoueur][ligne][-2] != '':
             tuile = escaliers[numJoueur][ligne][-2]
-            ActualisationMatFinDeTour(murExemple, murCoeff, murs, numJoueur, ligne, tuile)
+            ActualisationMatFinDeTour(murExemple, murs, numJoueur, ligne, tuile)
 
-def ActualisationMatFinDeTour(murExemple, murCoeff, murs, numJoueur, ligne, tuile):
+def ActualisationMatFinDeTour(murExemple, murs, numJoueur, ligne, tuile):
     for i in range(len(murExemple[ligne])):
         if murExemple[ligne][i] == tuile:
-            murCoeff[numJoueur][ligne][i] = 1
-            CalculPointsUneCase(numJoueur,score, (ligne,i),murCoeff)
+            CalculPointsUneCase(numJoueur,score, (ligne,i),murs)
             murs[numJoueur][ligne][i] = tuile
             break
 
@@ -559,14 +558,14 @@ def ActualisationMatFinDeTour(murExemple, murCoeff, murs, numJoueur, ligne, tuil
 def CaseValide(n,i,j):
     return (0 <= i <= (n - 1) and 0 <= j <= (n - 1))
 
-def CalculPointsUneCase(numJoueur, score, coord, murCoeff):
+def CalculPointsUneCase(numJoueur, score, coord, mursJoueur):
     comptV = 0
-    n = len(murCoeff[numJoueur])
+    n = len(murJoueur[numJoueur])
     for depV in [-1,1]:
         i = coord[0] + depV
         j = coord[1]
         while True:
-            if CaseValide(n,i,j) and murCoeff[numJoueur][i][j] == 1:
+            if CaseValide(n,i,j) and mursJoueur[numJoueur][i][j] == murExemple[i][j]:
                 comptV += 1
                 i += depV
             else:
@@ -576,7 +575,7 @@ def CalculPointsUneCase(numJoueur, score, coord, murCoeff):
         i = coord[0]
         j = coord[1] + depH
         while True:
-            if CaseValide(n,i,j) and murCoeff[numJoueur][i][j] == 1:
+            if CaseValide(n,i,j) and mursJoueur[numJoueur][i][j] == murExemple[i][j]:
                 comptH += 1
                 j += depH
             else:
@@ -624,33 +623,34 @@ def ChoixSauvegarde():
             return False
         x,y = RecupClic()
 
-def ConditionFinDePartie(murCoeff):
+def ConditionFinDePartie(murJoueur):
     '''renvoie un mur si ce dernier rempli la condition de fin de partie'''
-    for mur in range(len(murCoeff)):
-        for ligne in murCoeff[mur]:
-            if ligne == [1,1,1,1,1]:
-                return mur
+    for ligne in murJoueur:
+        if ligne in murExemple:
+            return True
+    return False
 
 ################## Calcul des bonus ############################################
-def BonusScore(nbjoueur, score, murCoeff, murs):
+def BonusScore(nbjoueur, score, murs):
     for i in range(nbjoueur):
-        score[i] = BonusLigne(murCoeff[i],score[i])
-        score[i] = BonusColonne(murCoeff[i],score[i])
+        score[i] = BonusLigne(murs[i],score[i])
+        score[i] = BonusColonne(murs[i],score[i])
         score[i] = BonusCouleur(murs[i], score[i])
     return score
 
-def BonusLigne(matcoeff, score):
-    for ligne in matcoeff:
-        if ligne == [1,1,1,1,1]:
+def BonusLigne(murJoueur, score):
+    for ligne in range(len(murJoueur)):
+        if murJoueur[ligne] == murExemple[ligne]:
             score += 2
     return score
 
-def BonusColonne(matcoeff, score):
-    n=len(matcoeff)
-    for i in range(len(matcoeff[0])):
+def BonusColonne(murJoueur, score):
+    n=len(murJoueur)
+
+    for i in range(len(murJoueur)):
         Colonne = True
         for j in range(n):
-            if matcoeff[j][i] == 0:
+            if murJoueur[j][i] != murExemple[j][i]:
                 Colonne = False
                 break
         if Colonne:
@@ -700,16 +700,15 @@ if __name__ == '__main__':
         escaliers = InitialiserEscaliers(nbJoueurs)
         table = InitialiserTable()
         score = InitialiserScore(nbJoueurs)
-        murCoeff = InitialiserCoeffMur(nbJoueurs)
     else:
-        nbJoueurs,listeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,numJoueur,test = LectureFichierSauvegarde(save)
+        nbJoueurs,listeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murExemple,numJoueur,test = LectureFichierSauvegarde(save)
 
 ################################################################################
 
 ######################### Boucle principale du jeu #############################
     UpdateEcran(nbJoueurs,murs,planchers,escaliers,table,fabriques,score, numJoueur)
     while True:
-        EcritureFichierSauvegarde(save, nbJoueurs,listeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murCoeff,murExemple,numJoueur, test)
+        EcritureFichierSauvegarde(save, nbJoueurs,listeTypeJoueur,sac,fabriques,murs,planchers,escaliers,table,score,murExemple,numJoueur, test)
         tourFini = DeroulementTour(nbJoueurs, fabriques, numJoueur, escaliers[numJoueur], table, planchers[numJoueur], listeTypeJoueur[numJoueur], murs, test)
         while not tourFini:
             tourFini = DeroulementTour(nbJoueurs, fabriques, numJoueur, escaliers[numJoueur], table, planchers[numJoueur], listeTypeJoueur[numJoueur], murs, test)
@@ -720,17 +719,18 @@ if __name__ == '__main__':
             fabriques = RemplirFabriques(nbJoueurs, sac)
             numJoueur = DeterminerPremierJoueur(planchers)
             table.append(VJeton)
-            planchers = FinDeRotation(nbJoueurs, escaliers, murs, murCoeff, murExemple, score, planchers)
+            planchers = FinDeRotation(nbJoueurs, escaliers, murs, murExemple, score, planchers)
         UpdateEcran(nbJoueurs,murs,planchers,escaliers,table,fabriques,score, numJoueur)
-        condition = ConditionFinDePartie(murCoeff)
-        if condition != None:
-            score = BonusScore(nbJoueurs, score, murCoeff, murs)
+        condition = ConditionFinDePartie(murs[numJoueur])
+        if condition:
+            joueurStoppeurDeLaPartie = numJoueur
+            score = BonusScore(nbJoueurs, score, murs)
             break
 
 ################################################################################
     # Afficher gagnant et score de chacun
     sleep(2)
-    DessinerEcranFin(score, nbJoueurs, condition)
+    DessinerEcranFin(score, nbJoueurs, joueurStoppeurDeLaPartie)
     print('Cliquez n\'importe où sur l\'écran')
     attente_clic()
     ferme_fenetre()

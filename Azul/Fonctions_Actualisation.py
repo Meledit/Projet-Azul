@@ -6,7 +6,7 @@ from Fonctions_Sauvegarde import *
 from time import *
 from upemtk import *
 from math import *
-from random import randrange
+from random import choice
 from functools import wraps, lru_cache
 from inspect import *
 
@@ -53,17 +53,23 @@ def ChoixNbJoueurs():
 
 def RemplirFabriques(nbJoueurs, Sac):
     ''' Récupère des tuiles du sac de manière aléatoire pour les mettre dans les fabriques'''
+    def FonctionFiltre(key):
+        return sac[key]>0
     zoneFabriques = []
-    nbTuilesDansSac = len(Sac)
+    nbTuilesDansSac= sum(sac.values())
+    couleursDispo = list(filter(FonctionFiltre, sac.keys()))
     for i in range((nbJoueurs * 2) + 1):
         zoneFabriques.append([])
         if nbTuilesDansSac<4:
             zoneFabriques[i] = []
         else:
             for j in range(4):
-                couleur = randrange(0, len(Sac))
-                zoneFabriques[i].append(Sac.pop(couleur))
-                nbTuilesDansSac += -1
+                couleur = choice(couleursDispo)
+                zoneFabriques[i].append(couleur)
+                sac[couleur] += -1
+                if sac[couleur] == 0:
+                    couleursDispo.remove(couleur)
+            nbTuilesDansSac += -4
     return zoneFabriques
 
 def Confirmer():
@@ -389,10 +395,8 @@ def LigneEscalierValide(tuile, ligneEscalier):
     return True
 
 def FabriqueVersTable(table, fabrique, tuile):
-    ''' Deplace les tuiles restantes dans la fabrique sélectionnée vers le table'''
-    for i in range(len(fabrique)):
-        if fabrique[i] != tuile:
-            table.append(fabrique[i])
+    ''' Deplace les tuiles restantes dans la fabrique sélectionnée vers la table'''
+    table.extend([x for x in fabrique if x != tuile ])
 
 def AssezDePlace(nbTuiles, ligneEscalier, tuile):
     '''Renvoie True, si on peut placer toutes les tuiles sélectionnées dans la ligne d'escalier sélectionnée, et False sinon'''
@@ -560,7 +564,7 @@ def CaseValide(n,i,j):
 
 def CalculPointsUneCase(numJoueur, score, coord, mursJoueur):
     comptV = 0
-    n = len(murJoueur[numJoueur])
+    n = len(mursJoueur[numJoueur])
     for depV in [-1,1]:
         i = coord[0] + depV
         j = coord[1]
@@ -714,7 +718,7 @@ if __name__ == '__main__':
             tourFini = DeroulementTour(nbJoueurs, fabriques, numJoueur, escaliers[numJoueur], table, planchers[numJoueur], listeTypeJoueur[numJoueur], murs, test)
         numJoueur = AlternerJoueur(numJoueur, nbJoueurs)
         if RotationFinie(fabriques, table):
-            if len(sac)==0:
+            if sum(sac.values())==0:
                 sac=InitialiserSac()
             fabriques = RemplirFabriques(nbJoueurs, sac)
             numJoueur = DeterminerPremierJoueur(planchers)

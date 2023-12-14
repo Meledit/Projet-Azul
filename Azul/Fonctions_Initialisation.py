@@ -11,11 +11,10 @@ from inspect import *
 ########################################################################################################
 def InitialiserSac():
     ''' Initialise le sac qui est une liste contenant les 100 tuiles réparties en 5 couleurs différentes'''
-    sac = []
     couleur = [Bl, J, R, V, Bc]
-    nbCouleurs = len(couleur)
-    for i in range(100):
-        sac.append(couleur[i%nbCouleurs])
+    sac = dict()
+    for i in couleur:
+        sac[i] = 20
     return sac
 
 def Copie(T):
@@ -68,7 +67,5 @@ def InitialiserTable():
 
 def InitialiserScore(nbJoueurs):
     ''' Initialise la liste contenant les scores de chaque joueur, chaque joueur à un score de 0 au début'''
-    Lst = []
-    for i in range(nbJoueurs):
-        Lst.append(0)
+    Lst = [0]*nbJoueurs
     return Lst

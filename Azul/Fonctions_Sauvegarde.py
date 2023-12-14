@@ -9,6 +9,12 @@ def SauvegardeListe(Fichier, Lst):
             f.write(str(elem) + '_')
         f.write('\n')
 
+def SauvegardeDict(Fichier, Dico):
+    with open(Fichier, 'a') as f:
+        for key, value in Dico.items():
+            f.write(str(key)+'_'+str(value)+'|')
+        f.write('\n')
+
 def SauvegardeMat(Fichier, Mat):
      with open(Fichier, 'a') as f:
         for ligne in Mat:
@@ -43,6 +49,18 @@ def LectureListe(ligne):
             liste[i] = None
     return liste
 
+def LectureDict(ligne):
+    dico = dict()
+    tmp = ''
+    for lettre in ligne:
+        if lettre == '|':
+            tmpLst = tmp.split("_")
+            dico[tmpLst[0]] = int(tmpLst[1])
+            tmp=''
+        else:
+            tmp += lettre
+    return dico
+
 def LectureMatPart1(ligne):
     mat=[]
     tmp = ''
@@ -59,7 +77,7 @@ def LectureMatPart1(ligne):
 def LectureElem(ligne):
     tmp = ''
     for lettre in ligne:
-        tmp+= lettre
+        tmp += lettre
     elem = int(tmp)
     return elem
 
@@ -100,7 +118,7 @@ def LectureFichierSauvegarde(save):
     with open(save, 'r') as save:
         nbJoueurs = LectureElem(save.readline())
         listeTypeJoueur = LectureListe(save.readline())
-        sac = LectureListe(save.readline())
+        sac = LectureDict(save.readline())
         fabriques = LectureMat(save.readline())
         murs = LectureMatNiv3(save.readline())
         planchers = LectureMat(save.readline())
@@ -117,7 +135,7 @@ def EcritureFichierSauvegarde(save,nbJoueur,listeTypeJoueur,sac,fabriques,murs,p
     with open(save, 'w') as fichier:
         fichier.write(str(nbJoueur) + '\n')
     SauvegardeListe(save,listeTypeJoueur)
-    SauvegardeListe(save,sac)
+    SauvegardeDict(save,sac)
     SauvegardeMat(save,fabriques)
     SauvegardeMat3Niveau(save,murs)
     SauvegardeMat(save,planchers)

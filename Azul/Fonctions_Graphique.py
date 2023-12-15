@@ -133,9 +133,10 @@ def DessinerTable(xInit, yInit, table):
 
 def DessinerUnMur(xInit,yInit,M):
     '''Dessine un mur, en partant du coin supérieur gauche de coordonnées (xInit, yInit) et de la matrice fournie'''
+    longueurMur = len(M[0])
     for i in range(len(M)):
         y = yInit + i*tailleC + i*tailleC/6
-        for j in range(len(M[i])):
+        for j in range(longueurMur):
             x = xInit + j*tailleC + j*tailleC/6
             rectangle(x, y, x+tailleC, y+tailleC, "white", M[i][j], 2) 
 
@@ -218,9 +219,10 @@ def Cadre(xInit, yInit, clr):
 ######################## Ombres du plateau ########################################################
 def DessinerOmbre(xInit, yInit, M):
     '''Dessine l'ombre d'une matrice'''
+    longueurLigne =len(M[0])
     for i in range (len(M)):
         y = yInit + i * tailleC + i * tailleC/6
-        for j in range (len(M[i])):
+        for j in range (longueurLigne):
             x = xInit + j * tailleC + j * tailleC/6
             if M[i][j] == 'FlecheR' or M[i][j] == 'FlecheV':
                 polygone([x, y ,x + tailleC, y + tailleC/2, x, y + tailleC], '#212936', '#212936', 1)

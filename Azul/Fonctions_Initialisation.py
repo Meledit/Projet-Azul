@@ -36,7 +36,7 @@ def InitialiserMurs(nbJoueurs, murJoueur):
     return murs
 
 def CreerUnEscalier():
-    '''Initialise l'escalier d'un joueur, comme étant une matrice avec des listes contenant None pour ne pas dessiner la case, et vide '' pour une case vide'''
+    '''Initialise l'escalier d'un joueur, comme étant une matrice avec des listes contenant '' pour une case vide'''
     escalier = []
     for i in range(5):
         escalier.append([])

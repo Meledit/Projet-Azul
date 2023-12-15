@@ -51,7 +51,7 @@ def ChoixNbJoueurs():
         test = 1
     return nbJoueurs, ListeTypejoueur, test
 
-def RemplirFabriques(nbJoueurs, Sac):
+def RemplirFabriques(nbJoueurs, sac):
     ''' Récupère des tuiles du sac de manière aléatoire pour les mettre dans les fabriques'''
     def FonctionFiltre(key):
         return sac[key]>0
@@ -143,7 +143,7 @@ def DeterminerTuileSelectionnee(coordonne, M, numFabrique, nbJoueurs):
     else:
         return M[numFabrique][x + y + 1]
 
-def ActualiseFabrique(fabriques, numFabrique):
+def ActualiserFabrique(fabriques, numFabrique):
     ''' Vide la fabrique sélectionnée, pour que les cases ne soient pas dessiner'''
     fabriques[numFabrique] = []
 
@@ -243,7 +243,7 @@ def ConfirmerDeplacementDepuisFabrique(fabrique, tuile, nbTuiles, ligneSelection
 
         FabriqueVersTable(table, fabriques[fabrique], tuile)
         ActualiserLigneEscalier(ligneSelectionnee, tuile, tuileAPlaceDansEscalier)
-        ActualiseFabrique(fabriques, fabrique)
+        ActualiserFabrique(fabriques, fabrique)
 
         if AssezDePlace(nbTuiles, ligneSelectionnee,tuile) == False:
             tuile_a_placer_dans_plancher=nbTuiles-tuileAPlaceDansEscalier
@@ -390,7 +390,7 @@ def LigneEscalierValide(tuile, ligneEscalier):
     if '' not in ligneEscalier:
         return False
     for i in range(len(ligneEscalier)):
-        if ligneEscalier[i] not in [None, tuile, '', 'FlecheR', 'FlecheV']: #FIXME None pas utile ?
+        if ligneEscalier[i] not in [tuile, '', 'FlecheR', 'FlecheV']:
             return False
     return True
 
@@ -451,7 +451,7 @@ def TourIA(fabriques,table,escaliers,planchers,numJoueur, genreJoueur, murs, tes
     ''' Gère le tour d'un joueur IA de manière intelligente'''
     temps = 2.5
     if test == 1:
-        temps = 0
+        temps = 0.5
     lstMarge=[0,-1,-2,1,2,-3,-4,3,4]
     for marge in lstMarge:
         tourFini = RemplirLignes(escaliers, murs, murExemple, table, planchers, numJoueur, genreJoueur, marge, temps)
@@ -603,14 +603,14 @@ def CalculMalus(numJoueur, planchers, score):
         else:
             break
 
-def VideEscalier(numJoueur, escaliers):
+def VideEscalier(numJoueur,escaliers):
     for ligne in range(len(escaliers[numJoueur])):
         if escaliers[numJoueur][ligne][-2] != '':
             tuile = escaliers[numJoueur][ligne][-2]
             for i in range(len(escaliers[numJoueur][ligne])):
                 if escaliers[numJoueur][ligne][i] == tuile:
                     escaliers[numJoueur][ligne][i] =''
-                escaliers[numJoueur][ligne][-1] = 'FlecheR'
+            escaliers[numJoueur][ligne][-1] = 'FlecheR'
 
 def CouleurDejaDansMur(tuile, ligneDuMur):
     '''Verifie si la couleur de la tuile à placer est déjà dans le mur ou non'''
@@ -693,8 +693,8 @@ if __name__ == '__main__':
     DebutPartie()
     choix = ChoixSauvegarde()
     if choix:
-        # Fichier = input("Choisir le fichier contenant votre matrice ")
-        fichier = "MatriceC.txt"
+        fichier = input("Choisir le fichier contenant votre matrice ")
+        # fichier = "MatriceC.txt"
         murExemple, murJoueur = LectureMatDepart(fichier)
         nbJoueurs, listeTypeJoueur, test = EcranChoixNbJoueur()
         sac = InitialiserSac()
